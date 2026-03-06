@@ -31,35 +31,38 @@ function TaskForm({ addTask }) {
       <h3>Add Task</h3>
 
       <input
-        type="text"
-        placeholder="Task title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
-
+  className="form-input"
+  type="text"
+  placeholder="Task title"
+  value={title}
+  onChange={(e) => setTitle(e.target.value)}
+/>
       <br /><br />
 
       <input
-        type="text"
-        placeholder="Task description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
+  className="form-input"
+  type="text"
+  placeholder="Task description"
+  value={description}
+  onChange={(e) => setDescription(e.target.value)}
+/>
 
       <br /><br />
 
-      <input
-        type="date"
-        value={dueDate}
-        onChange={(e) => setDueDate(e.target.value)}
-      />
+     <input
+  className="form-input"
+  type="date"
+  value={dueDate}
+  onChange={(e) => setDueDate(e.target.value)}
+/>
 
       <br /><br />
 
       <select
-        value={priority}
-        onChange={(e) => setPriority(e.target.value)}
-      >
+  className="form-input"
+  value={priority}
+  onChange={(e) => setPriority(e.target.value)}
+>
         <option value="Low">Low</option>
         <option value="Medium">Medium</option>
         <option value="High">High</option>
@@ -67,7 +70,7 @@ function TaskForm({ addTask }) {
 
       <br /><br />
 
-      <button type="submit">Add Task</button>
+      <button className="add-task-btn">Add Task</button>
     </form>
   );
 }
