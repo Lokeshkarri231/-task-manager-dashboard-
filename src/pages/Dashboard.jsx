@@ -13,6 +13,7 @@ function Dashboard() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
+  const [darkMode, setDarkMode] = useState(true);
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -48,13 +49,13 @@ function Dashboard() {
     setTasks(updatedTasks);
   };
 
-  // ✅ Logout function
+  // Logout
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
     navigate("/");
   };
 
-  // ✅ Analytics
+  // Analytics
   const totalTasks = tasks.length;
 
   const completedTasks = tasks.filter(
@@ -70,7 +71,7 @@ function Dashboard() {
       ? 0
       : Math.round((completedTasks / totalTasks) * 100);
 
-  // ✅ Filtering Logic
+  // Filtering
   const filteredTasks = tasks
     .filter((task) =>
       task.title.toLowerCase().includes(search.toLowerCase())
@@ -83,38 +84,71 @@ function Dashboard() {
     );
 
   return (
-    <div>
-      <h2>Task Dashboard</h2>
+    <div className={`dashboard ${darkMode ? "dark" : "light"}`}>
 
-      {/* ✅ Logout Button */}
-      <button onClick={handleLogout}>Logout</button>
-
-      <br /><br />
-
-      <div>
-        <h3>Analytics</h3>
-
-        <p>Total Tasks: {totalTasks}</p>
-        <p>Completed Tasks: {completedTasks}</p>
-        <p>Pending Tasks: {pendingTasks}</p>
-        <p>Completion: {completionPercentage}%</p>
-
-        <hr />
+      {/* Navbar */}
+      <div className="navbar">
+        <h2>Task Manager</h2>
+        <button
+  className="theme-btn"
+  onClick={() => setDarkMode(!darkMode)}
+>
+  {darkMode ? "☀️ Light" : "🌙 Dark"}
+</button>
+        <button className="logout-btn" onClick={handleLogout}>
+          Logout
+        </button>
       </div>
 
-      <TaskForm addTask={addTask} />
+      {/* Analytics Cards */}
+      <div className="analytics">
 
-      <div>
-        <h3>Filters</h3>
+        <div className="card">
+          <h3>Total Tasks</h3>
+          <p>{totalTasks}</p>
+        </div>
+
+        <div className="card">
+          <h3>Completed</h3>
+          <p>{completedTasks}</p>
+        </div>
+
+        <div className="card">
+          <h3>Pending</h3>
+          <p>{pendingTasks}</p>
+        </div>
+
+        <div className="card">
+          <h3>Completion</h3>
+
+          <p>{completionPercentage}%</p>
+
+          {/* Progress Bar */}
+          <div className="progress-bar">
+            <div
+              className="progress-fill"
+              style={{ width: `${completionPercentage}%` }}
+            ></div>
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* Add Task */}
+      <div className="task-form-section">
+        <TaskForm addTask={addTask} />
+      </div>
+
+      {/* Filters */}
+      <div className="filters">
 
         <input
           type="text"
-          placeholder="Search task"
+          placeholder="Search task..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-
-        <br /><br />
 
         <select
           value={statusFilter}
@@ -125,8 +159,6 @@ function Dashboard() {
           <option value="Completed">Completed</option>
         </select>
 
-        <br /><br />
-
         <select
           value={priorityFilter}
           onChange={(e) => setPriorityFilter(e.target.value)}
@@ -136,31 +168,66 @@ function Dashboard() {
           <option value="Medium">Medium</option>
           <option value="High">High</option>
         </select>
+
       </div>
 
-      <h3>Task List</h3>
+      {/* Task List */}
+      <div className="task-list">
 
-      {filteredTasks.length === 0 && <p>No tasks found</p>}
+        {filteredTasks.length === 0 && (
+  <div className="empty-state">
+    🚀 No tasks yet. Add your first task!
+  </div>
+)}
 
-      {filteredTasks.map((task) => (
-        <div key={task.id}>
-          <h4>{task.title}</h4>
-          <p>{task.description}</p>
-          <p>Status: {task.status}</p>
-          <p>Due Date: {task.dueDate}</p>
-          <p>Priority: {task.priority}</p>
+        {filteredTasks.map((task) => (
 
-          <button onClick={() => toggleComplete(task.id)}>
-            Mark Complete
-          </button>
+          <div key={task.id} className="task-card">
 
-          <button onClick={() => deleteTask(task.id)}>
-            Delete
-          </button>
+            <h3>{task.title}</h3>
 
-          <hr />
-        </div>
-      ))}
+            <p>{task.description}</p>
+
+            <p>
+  Status:
+  <span className={`status ${task.status.toLowerCase()}`}>
+    {task.status}
+  </span>
+</p>
+
+            <p>
+              Priority:
+              <span className={`priority ${task.priority.toLowerCase()}`}>
+                {task.priority}
+              </span>
+            </p>
+
+            <p>Due Date: {task.dueDate}</p>
+
+            <div className="task-buttons">
+
+              <button
+                className="complete-btn"
+                onClick={() => toggleComplete(task.id)}
+              >
+                Mark Complete
+              </button>
+
+              <button
+                className="delete-btn"
+                onClick={() => deleteTask(task.id)}
+              >
+                Delete
+              </button>
+
+            </div>
+
+          </div>
+
+        ))}
+
+      </div>
+
     </div>
   );
 }
