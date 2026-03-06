@@ -89,6 +89,29 @@
   font-weight: 600;
 }
 
+.logo {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  opacity: 0.8;
+}
+
+.nav-links span {
+  cursor: pointer;
+}
+
+.nav-links span:hover {
+  opacity: 1;
+}
+
+.nav-actions {
+  display: flex;
+  gap: 10px;
+}
 
 /* ============================= */
 /* LOGOUT BUTTON */
