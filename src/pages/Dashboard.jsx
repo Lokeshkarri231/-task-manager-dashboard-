@@ -49,13 +49,11 @@ function Dashboard() {
     setTasks(updatedTasks);
   };
 
-  // Logout
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
     navigate("/");
   };
 
-  // Analytics
   const totalTasks = tasks.length;
 
   const completedTasks = tasks.filter(
@@ -71,7 +69,6 @@ function Dashboard() {
       ? 0
       : Math.round((completedTasks / totalTasks) * 100);
 
-  // Filtering
   const filteredTasks = tasks
     .filter((task) =>
       task.title.toLowerCase().includes(search.toLowerCase())
@@ -86,21 +83,39 @@ function Dashboard() {
   return (
     <div className={`dashboard ${darkMode ? "dark" : "light"}`}>
 
-      {/* Navbar */}
+      {/* NAVBAR */}
       <div className="navbar">
-        <h2>Task Manager</h2>
-        <button
-  className="theme-btn"
-  onClick={() => setDarkMode(!darkMode)}
->
-  {darkMode ? "☀️ Light" : "🌙 Dark"}
-</button>
-        <button className="logout-btn" onClick={handleLogout}>
-          Logout
-        </button>
+
+        <div className="logo">
+          Task Manager
+        </div>
+
+        <div className="nav-links">
+          <span>Dashboard</span>
+          <span>Tasks</span>
+        </div>
+
+        <div className="nav-actions">
+
+          <button
+            className="theme-btn"
+            onClick={() => setDarkMode(!darkMode)}
+          >
+            {darkMode ? "☀️" : "🌙"}
+          </button>
+
+          <button
+            className="logout-btn"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+
+        </div>
+
       </div>
 
-      {/* Analytics Cards */}
+      {/* ANALYTICS */}
       <div className="analytics">
 
         <div className="card">
@@ -123,7 +138,6 @@ function Dashboard() {
 
           <p>{completionPercentage}%</p>
 
-          {/* Progress Bar */}
           <div className="progress-bar">
             <div
               className="progress-fill"
@@ -135,12 +149,12 @@ function Dashboard() {
 
       </div>
 
-      {/* Add Task */}
+      {/* ADD TASK */}
       <div className="task-form-section">
         <TaskForm addTask={addTask} />
       </div>
 
-      {/* Filters */}
+      {/* FILTERS */}
       <div className="filters">
 
         <input
@@ -171,14 +185,14 @@ function Dashboard() {
 
       </div>
 
-      {/* Task List */}
+      {/* TASK LIST */}
       <div className="task-list">
 
         {filteredTasks.length === 0 && (
-  <div className="empty-state">
-    🚀 No tasks yet. Add your first task!
-  </div>
-)}
+          <div className="empty-state">
+            🚀 No tasks yet. Add your first task!
+          </div>
+        )}
 
         {filteredTasks.map((task) => (
 
@@ -189,11 +203,11 @@ function Dashboard() {
             <p>{task.description}</p>
 
             <p>
-  Status:
-  <span className={`status ${task.status.toLowerCase()}`}>
-    {task.status}
-  </span>
-</p>
+              Status:
+              <span className={`status ${task.status.toLowerCase()}`}>
+                {task.status}
+              </span>
+            </p>
 
             <p>
               Priority:
@@ -210,7 +224,7 @@ function Dashboard() {
                 className="complete-btn"
                 onClick={() => toggleComplete(task.id)}
               >
-                Mark Complete
+                Complete
               </button>
 
               <button
