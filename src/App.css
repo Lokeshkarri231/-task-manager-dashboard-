@@ -1,0 +1,534 @@
+/* ============================= */
+/* LOGIN PAGE */
+/* ============================= */
+
+.login-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #1f2937, #111827);
+}
+
+.login-card {
+  background: #1f2937;
+  padding: 40px;
+  border-radius: 12px;
+  width: 320px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+  text-align: center;
+}
+
+.login-title {
+  margin-bottom: 5px;
+}
+
+.login-subtitle {
+  color: #9ca3af;
+  margin-bottom: 25px;
+}
+
+.login-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+}
+
+.login-button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.login-button:hover {
+  background: #2563eb;
+}
+
+
+
+
+
+
+
+
+/* ============================= */
+/* GLOBAL */
+/* ============================= */
+
+.dashboard {
+  padding: 40px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e293b, #020617);
+  color: white;
+
+  max-width: 1200px;
+  margin: auto;
+}
+
+
+/* ============================= */
+/* NAVBAR */
+/* ============================= */
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 35px;
+}
+
+.navbar h2 {
+  font-weight: 600;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  opacity: 0.8;
+}
+
+.nav-links span {
+  cursor: pointer;
+}
+
+.nav-links span:hover {
+  opacity: 1;
+}
+
+.nav-actions {
+  display: flex;
+  gap: 10px;
+}
+/* ============================= */
+/* LOGOUT BUTTON */
+/* ============================= */
+
+.logout-btn {
+  background: #ef4444;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.logout-btn:hover {
+  background: #dc2626;
+}
+
+
+/* ============================= */
+/* ANALYTICS CARDS */
+/* ============================= */
+
+.analytics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 35px;
+}
+
+.card {
+  background: #1f2937;
+  padding: 22px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+}
+
+.card h3 {
+  margin-bottom: 10px;
+  color: #cbd5f5;
+}
+
+.card p {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+
+/* ============================= */
+/* PROGRESS BAR */
+/* ============================= */
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #334155;
+  border-radius: 6px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #22c55e;
+  transition: width 0.4s ease;
+}
+
+
+/* ============================= */
+/* TASK FORM SECTION */
+/* ============================= */
+
+.task-form-section {
+  background: #1f2937;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+}
+
+
+/* ============================= */
+/* FILTERS */
+/* ============================= */
+
+.filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.filters input,
+.filters select {
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  background: #0f172a;
+  color: white;
+}
+
+
+/* ============================= */
+/* TASK LIST */
+/* ============================= */
+
+.task-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+
+/* ============================= */
+/* TASK CARD */
+/* ============================= */
+
+.task-card {
+  background: #1f2937;
+  padding: 22px;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.task-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+}
+
+
+/* ============================= */
+/* PRIORITY BADGES */
+/* ============================= */
+
+.priority {
+  margin-left: 8px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.priority.low {
+  background: #16a34a;
+}
+
+.priority.medium {
+  background: #f59e0b;
+}
+
+.priority.high {
+  background: #ef4444;
+}
+
+
+/* ============================= */
+/* TASK BUTTONS */
+/* ============================= */
+
+.task-buttons {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+}
+
+.complete-btn {
+  background: #22c55e;
+  border: none;
+  padding: 7px 12px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+
+.complete-btn:hover {
+  background: #16a34a;
+}
+
+.delete-btn {
+  background: #ef4444;
+  border: none;
+  padding: 7px 12px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background: #dc2626;
+}
+
+
+/* ============================= */
+/* RESPONSIVE DESIGN */
+/* ============================= */
+
+@media (max-width: 1000px) {
+
+  .analytics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .task-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+}
+
+@media (max-width: 600px) {
+
+  .analytics {
+    grid-template-columns: 1fr;
+  }
+
+  .task-list {
+    grid-template-columns: 1fr;
+  }
+
+  .filters {
+    flex-direction: column;
+  }
+
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  margin-bottom: 10px;
+  background: #0f172a;
+  color: white;
+}
+
+.add-task-btn {
+  background: #3b82f6;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+
+.add-task-btn:hover {
+  background: #2563eb;
+}
+
+.status {
+  margin-left: 8px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status.pending {
+  background: #f59e0b;
+}
+
+.status.completed {
+  background: #22c55e;
+}
+
+.empty-state {
+  text-align: center;
+  opacity: 0.7;
+  padding: 40px;
+  font-size: 18px;
+}
+
+.theme-btn {
+  background: #3b82f6;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: white;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.theme-btn:hover {
+  background: #2563eb;
+}
+
+.dashboard.light {
+  background: #f1f5f9;
+  color: #111;
+}
+
+.dashboard.light .card,
+.dashboard.light .task-card,
+.dashboard.light .task-form-section {
+  background: white;
+  color: black;
+}
+
+/* ===============================
+   GLASS CARD STYLE
+================================ */
+
+.glass-card {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 20px;
+
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.6),
+    0 0 8px rgba(79,70,229,0.2);
+
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 12px 40px rgba(0,0,0,0.8),
+    0 0 12px rgba(79,70,229,0.4);
+}
+
+/* ===============================
+   BENTO DASHBOARD GRID
+================================ */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(120px, auto);
+  gap: 20px;
+  padding: 20px;
+}
+
+.analytics {
+  grid-column: span 4;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.task-form-section {
+  grid-column: span 2;
+}
+
+.filters {
+  grid-column: span 2;
+}
+
+.task-list {
+  grid-column: span 4;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+/* ===============================
+   AI ASSISTANT
+================================ */
+
+.ai-fab {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #4F46E5;
+  color: white;
+  font-size: 24px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+.ai-chat {
+  position: fixed;
+  bottom: 100px;
+  right: 30px;
+  width: 280px;
+  padding: 20px;
+}
+
+.ai-input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 10px;
+}
+
+.ai-send {
+  margin-top: 10px;
+  padding: 6px 10px;
+  background: #4F46E5;
+  color: white;
+  border: none;
+}
+
+.kanban-board{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:20px;
+margin-top:20px;
+}
+
+.kanban-column{
+padding:20px;
+min-height:300px;
+}
+
+.kanban-task{
+background:rgba(255,255,255,0.05);
+padding:12px;
+border-radius:10px;
+margin-top:10px;
+cursor:grab;
+}

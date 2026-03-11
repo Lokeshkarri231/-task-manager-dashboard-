@@ -1,0 +1,130 @@
+/* Reset */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Root */
+
+:root {
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+}
+
+/* Body Layout */
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a, #020617);
+  color: white;
+}
+
+/* Center Login Page */
+
+.login-page {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Login Card */
+
+.login-card {
+  background: #1f2937;
+  padding: 40px;
+  border-radius: 12px;
+  width: 350px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+}
+
+.login-card h2 {
+  margin-bottom: 10px;
+}
+
+.login-card p {
+  margin-bottom: 25px;
+  color: #9ca3af;
+}
+
+/* Inputs */
+
+.login-card input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  border: none;
+  background: #0f172a;
+  color: white;
+}
+
+.login-card input::placeholder {
+  color: #9ca3af;
+}
+
+/* Login Button */
+
+.login-card button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 6px;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-card button:hover {
+  background: #2563eb;
+}
+
+/* Theme Button */
+
+.theme-btn {
+  background: #3b82f6;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: white;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.theme-btn:hover {
+  background: #2563eb;
+}
+
+/* Light Mode */
+
+.dashboard.light {
+  background: #f1f5f9;
+  color: #111;
+}
+
+.dashboard.light .card,
+.dashboard.light .task-card,
+.dashboard.light .task-form-section {
+  background: white;
+  color: black;
+}
+
+/* ===== Premium Dark Theme ===== */
+
+:root {
+  --bg-main: #121212;
+  --card-glass: rgba(255,255,255,0.05);
+  --border-glass: rgba(255,255,255,0.08);
+  --text-primary: #ffffff;
+  --text-secondary: #9ca3af;
+  --accent-action: #4F46E5;
+}
+
+body {
+  background: var(--bg-main);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+}
