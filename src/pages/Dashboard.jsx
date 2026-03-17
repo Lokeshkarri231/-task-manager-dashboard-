@@ -3,20 +3,21 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import TaskForm from "../components/TaskForm";
 import KanbanBoard from "../components/KanbanBoard";
-import AiAssistant from "../components/AiAssistant"; 
+import AiAssistant from "../components/AiAssistant";
 
 function Dashboard() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
   const [tasks, setTasks] = useState([]);
+  const [user, setUser] = useState(null); 
 
   // Filters state
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
 
-  // SAFE session check
+  // ✅ UPDATED session check (store user)
   useEffect(() => {
     const checkUser = async () => {
       const { data } = await supabase.auth.getSession();
@@ -24,6 +25,7 @@ function Dashboard() {
       if (!data.session) {
         navigate("/");
       } else {
+        setUser(data.session.user); 
         setLoading(false);
       }
     };
@@ -31,7 +33,7 @@ function Dashboard() {
     checkUser();
   }, [navigate]);
 
-  // SAFE localStorage load
+  // ❌ KEEP (temporary fallback - will remove later)
   useEffect(() => {
     try {
       const saved = localStorage.getItem("tasks");
@@ -43,12 +45,33 @@ function Dashboard() {
     }
   }, []);
 
-  // SAFE localStorage save
+  // ✅ NEW: Fetch tasks from Supabase
+  useEffect(() => {
+    const fetchTasks = async () => {
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.log("Error fetching tasks:", error.message);
+      } else {
+        setTasks(data);
+      }
+    };
+
+    fetchTasks();
+  }, [user]);
+
+  // ❌ KEEP for now
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
-  // ADD TASK
+  // ADD TASK (still local for now)
   const addTask = (task) => {
     if (!task) return;
     setTasks([...tasks, task]);
@@ -172,7 +195,7 @@ function Dashboard() {
         <KanbanBoard tasks={tasks} setTasks={setTasks} />
       </div>
 
-      {/* 🤖 AI Assistant */}
+      {/* AI Assistant */}
       <div style={{ marginTop: "40px" }}>
         <AiAssistant />
       </div>
