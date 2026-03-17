@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import TaskForm from "../components/TaskForm";
-import KanbanBoard from "../components/KanbanBoard"; 
+import KanbanBoard from "../components/KanbanBoard";
+import AiAssistant from "../components/AiAssistant"; 
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -10,12 +11,12 @@ function Dashboard() {
 
   const [tasks, setTasks] = useState([]);
 
-  // ✅ Filters state
+  // Filters state
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
 
-  // ✅ SAFE session check
+  // SAFE session check
   useEffect(() => {
     const checkUser = async () => {
       const { data } = await supabase.auth.getSession();
@@ -30,7 +31,7 @@ function Dashboard() {
     checkUser();
   }, [navigate]);
 
-  // ✅ SAFE localStorage load
+  // SAFE localStorage load
   useEffect(() => {
     try {
       const saved = localStorage.getItem("tasks");
@@ -42,24 +43,24 @@ function Dashboard() {
     }
   }, []);
 
-  // ✅ SAFE localStorage save
+  // SAFE localStorage save
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
-  // ✅ ADD TASK
+  // ADD TASK
   const addTask = (task) => {
     if (!task) return;
     setTasks([...tasks, task]);
   };
 
-  // ✅ DELETE TASK
+  // DELETE TASK
   const deleteTask = (id) => {
     const updated = tasks.filter((task) => task.id !== id);
     setTasks(updated);
   };
 
-  // ✅ TOGGLE STATUS
+  // TOGGLE STATUS
   const toggleComplete = (id) => {
     const updated = tasks.map((task) =>
       task.id === id
@@ -73,7 +74,7 @@ function Dashboard() {
     setTasks(updated);
   };
 
-  // ✅ FILTER LOGIC
+  // FILTER LOGIC
   const filteredTasks = tasks
     .filter((task) =>
       task.title?.toLowerCase().includes(search.toLowerCase())
@@ -85,7 +86,7 @@ function Dashboard() {
       priorityFilter === "All" ? true : task.priority === priorityFilter
     );
 
-  // ✅ PREVENT CRASH
+  // PREVENT CRASH
   if (loading) {
     return <div style={{ color: "white" }}>Loading...</div>;
   }
@@ -166,9 +167,14 @@ function Dashboard() {
         ))}
       </div>
 
-      {/* ✅ Kanban Board */}
+      {/* Kanban Board */}
       <div style={{ marginTop: "40px" }}>
         <KanbanBoard tasks={tasks} setTasks={setTasks} />
+      </div>
+
+      {/* 🤖 AI Assistant */}
+      <div style={{ marginTop: "40px" }}>
+        <AiAssistant />
       </div>
     </div>
   );
