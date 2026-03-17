@@ -33,18 +33,6 @@ function Dashboard() {
     checkUser();
   }, [navigate]);
 
-  // TEMP localStorage fallback
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("tasks");
-      if (saved && saved !== "undefined") {
-        setTasks(JSON.parse(saved));
-      }
-    } catch {
-      localStorage.removeItem("tasks");
-    }
-  }, []);
-
   // FETCH FROM SUPABASE
   useEffect(() => {
     const fetchTasks = async () => {
@@ -65,11 +53,6 @@ function Dashboard() {
 
     fetchTasks();
   }, [user]);
-
-  // TEMP localStorage save
-  useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
 
   // CREATE
   const addTask = async (task) => {
@@ -96,7 +79,7 @@ function Dashboard() {
     }
   };
 
-  // ✅ DELETE (NOW FROM SUPABASE)
+  // DELETE
   const deleteTask = async (id) => {
     const { error } = await supabase
       .from("tasks")
@@ -110,7 +93,7 @@ function Dashboard() {
     }
   };
 
-  // ✅ UPDATE (TOGGLE STATUS IN DB)
+  // UPDATE (TOGGLE)
   const toggleComplete = async (id) => {
     const task = tasks.find((t) => t.id === id);
     if (!task) return;
@@ -209,7 +192,7 @@ function Dashboard() {
 
             <p>Status: {task.status}</p>
             <p>Priority: {task.priority}</p>
-            <p>Due Date: {task.dueDate}</p>
+            <p>Due Date: {task.due_date}</p>
 
             <button onClick={() => toggleComplete(task.id)}>
               Toggle
