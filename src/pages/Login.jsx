@@ -14,20 +14,20 @@ function Login() {
 
   // 🔐 LOGIN
   const handleLogin = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
-    if (error) {
-      alert(error.message);
-    } else {
-      alert("Login successful 🚀");
-      navigate("/dashboard");
-    }
-  };
+  if (error) {
+    alert(error.message);
+  } else {
+    alert("Login successful 🚀");
+    navigate("/dashboard");
+  }
+};
 
   // 🆕 SIGNUP
   const handleSignup = async (e) => {
