@@ -71,7 +71,7 @@ function Dashboard() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
-  // ✅ INSERT TASK INTO SUPABASE (MAIN CHANGE)
+  // CREATE
   const addTask = async (task) => {
     if (!task || !user) return;
 
@@ -92,29 +92,45 @@ function Dashboard() {
     if (error) {
       console.log("Error adding task:", error.message);
     } else {
-      // update UI instantly
       setTasks([data[0], ...tasks]);
     }
   };
 
-  // DELETE (still local for now)
-  const deleteTask = (id) => {
-    const updated = tasks.filter((task) => task.id !== id);
-    setTasks(updated);
+  // ✅ DELETE (NOW FROM SUPABASE)
+  const deleteTask = async (id) => {
+    const { error } = await supabase
+      .from("tasks")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.log("Delete error:", error.message);
+    } else {
+      setTasks(tasks.filter((task) => task.id !== id));
+    }
   };
 
-  // TOGGLE (still local)
-  const toggleComplete = (id) => {
-    const updated = tasks.map((task) =>
-      task.id === id
-        ? {
-            ...task,
-            status: task.status === "Pending" ? "Completed" : "Pending",
-          }
-        : task
-    );
+  // ✅ UPDATE (TOGGLE STATUS IN DB)
+  const toggleComplete = async (id) => {
+    const task = tasks.find((t) => t.id === id);
+    if (!task) return;
 
-    setTasks(updated);
+    const newStatus =
+      task.status === "Pending" ? "Completed" : "Pending";
+
+    const { error } = await supabase
+      .from("tasks")
+      .update({ status: newStatus })
+      .eq("id", id);
+
+    if (error) {
+      console.log("Update error:", error.message);
+    } else {
+      const updated = tasks.map((t) =>
+        t.id === id ? { ...t, status: newStatus } : t
+      );
+      setTasks(updated);
+    }
   };
 
   // FILTER LOGIC
