@@ -4,13 +4,18 @@ import TaskForm from "../components/TaskForm";
 import toast from "react-hot-toast";
 import AiAssistant from "../components/AiAssistant";
 import KanbanBoard from "../components/KanbanBoard";
+import { supabase } from "../lib/supabaseClient"; 
 
 function Dashboard() {
   const navigate = useNavigate();
 
   const [tasks, setTasks] = useState(() => {
-    const savedTasks = localStorage.getItem("tasks");
-    return savedTasks ? JSON.parse(savedTasks) : [];
+    try {
+      const savedTasks = localStorage.getItem("tasks");
+      return savedTasks ? JSON.parse(savedTasks) : [];
+    } catch (error) {
+      return []; 
+    }
   });
 
   const [search, setSearch] = useState("");
@@ -18,22 +23,32 @@ function Dashboard() {
   const [priorityFilter, setPriorityFilter] = useState("All");
   const [darkMode, setDarkMode] = useState(true);
 
+  // ✅ FIXED: Supabase session check instead of localStorage
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    const checkUser = async () => {
+      const { data } = await supabase.auth.getSession();
 
-    if (!isLoggedIn) {
-      navigate("/");
-    }
+      if (!data.session) {
+        navigate("/");
+      }
+    };
+
+    checkUser();
   }, [navigate]);
 
+  // ✅ Save tasks safely
   useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
+    try {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    } catch (error) {
+      console.error("Error saving tasks:", error);
+    }
   }, [tasks]);
 
-  // 🔔 Overdue notification
+  // 🔔 Overdue notification (safe)
   useEffect(() => {
     tasks.forEach((task) => {
-      if (task.status === "Pending") {
+      if (task?.status === "Pending" && task?.dueDate) {
         const today = new Date();
         const due = new Date(task.dueDate);
 
@@ -45,6 +60,7 @@ function Dashboard() {
   }, [tasks]);
 
   const addTask = (task) => {
+    if (!task) return;
     setTasks([...tasks, task]);
   };
 
@@ -66,8 +82,9 @@ function Dashboard() {
     setTasks(updatedTasks);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
+  // ✅ FIXED logout
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     navigate("/");
   };
 
@@ -88,7 +105,7 @@ function Dashboard() {
 
   const filteredTasks = tasks
     .filter((task) =>
-      task.title.toLowerCase().includes(search.toLowerCase())
+      task.title?.toLowerCase().includes(search.toLowerCase())
     )
     .filter((task) =>
       statusFilter === "All" ? true : task.status === statusFilter
@@ -99,7 +116,7 @@ function Dashboard() {
 
   return (
     <div className={`dashboard ${darkMode ? "dark" : "light"}`}>
-
+      
       {/* NAVBAR */}
       <div className="navbar glass-card">
         <div className="logo">Task Manager</div>
@@ -209,7 +226,6 @@ function Dashboard() {
             <div key={task.id} className="task-card glass-card">
 
               <h3>{task.title}</h3>
-
               <p>{task.description}</p>
 
               <p>
