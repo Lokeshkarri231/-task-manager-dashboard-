@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import TaskForm from "../components/TaskForm";
+import KanbanBoard from "../components/KanbanBoard"; 
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -9,7 +10,7 @@ function Dashboard() {
 
   const [tasks, setTasks] = useState([]);
 
-  // ✅ NEW: Filters state
+  // ✅ Filters state
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
@@ -99,7 +100,7 @@ function Dashboard() {
         <TaskForm addTask={addTask} />
       </div>
 
-      {/* ✅ Filters */}
+      {/* Filters */}
       <div style={{ marginTop: "30px" }}>
         <input
           type="text"
@@ -163,6 +164,11 @@ function Dashboard() {
             </button>
           </div>
         ))}
+      </div>
+
+      {/* ✅ Kanban Board */}
+      <div style={{ marginTop: "40px" }}>
+        <KanbanBoard tasks={tasks} setTasks={setTasks} />
       </div>
     </div>
   );
