@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import TaskForm from "../components/TaskForm";
+//import TaskForm from "../components/TaskForm";
 import toast from "react-hot-toast";
-import AiAssistant from "../components/AiAssistant";
-import KanbanBoard from "../components/KanbanBoard";
+//import AiAssistant from "../components/AiAssistant";
+//import KanbanBoard from "../components/KanbanBoard";
 import { supabase } from "../lib/supabaseClient"; 
 
 function Dashboard() {
@@ -178,7 +178,7 @@ function Dashboard() {
 
         {/* ADD TASK */}
         <div className="task-form-section glass-card">
-          <TaskForm addTask={addTask} />
+          
         </div>
 
         {/* FILTERS */}
@@ -271,12 +271,16 @@ function Dashboard() {
       </div>
 
       {/* 🚀 KANBAN BOARD */}
-      <div style={{ marginTop: "40px" }}>
-        <KanbanBoard tasks={tasks} setTasks={setTasks} />
-      </div>
+      
+        return (
+  <div style={{ color: "white", padding: "20px" }}>
+    <h1>Dashboard Safe Mode ✅</h1>
+  </div>
+);
+      
 
       {/* 🤖 AI ASSISTANT */}
-      <AiAssistant />
+      
 
     </div>
   );
