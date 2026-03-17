@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
+import TaskForm from "../components/TaskForm"; 
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -16,14 +17,14 @@ function Dashboard() {
       if (!data.session) {
         navigate("/");
       } else {
-        setLoading(false); 
+        setLoading(false);
       }
     };
 
     checkUser();
   }, [navigate]);
 
-  // ✅ SAFE localStorage
+  // ✅ SAFE localStorage load
   useEffect(() => {
     try {
       const saved = localStorage.getItem("tasks");
@@ -35,9 +36,16 @@ function Dashboard() {
     }
   }, []);
 
+  // ✅ SAFE localStorage save
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
+
+  // ✅ ADD TASK FUNCTION
+  const addTask = (task) => {
+    if (!task) return;
+    setTasks([...tasks, task]);
+  };
 
   // ✅ PREVENT CRASH
   if (loading) {
@@ -48,6 +56,11 @@ function Dashboard() {
     <div style={{ color: "white", padding: "30px" }}>
       <h1>Dashboard ✅</h1>
       <p>Total Tasks: {tasks.length}</p>
+
+      {/* ✅ Task Form */}
+      <div style={{ marginTop: "20px" }}>
+        <TaskForm addTask={addTask} />
+      </div>
     </div>
   );
 }
