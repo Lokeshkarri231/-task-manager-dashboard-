@@ -9,6 +9,11 @@ function Dashboard() {
 
   const [tasks, setTasks] = useState([]);
 
+  // ✅ NEW: Filters state
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [priorityFilter, setPriorityFilter] = useState("All");
+
   // ✅ SAFE session check
   useEffect(() => {
     const checkUser = async () => {
@@ -67,6 +72,18 @@ function Dashboard() {
     setTasks(updated);
   };
 
+  // ✅ FILTER LOGIC
+  const filteredTasks = tasks
+    .filter((task) =>
+      task.title?.toLowerCase().includes(search.toLowerCase())
+    )
+    .filter((task) =>
+      statusFilter === "All" ? true : task.status === statusFilter
+    )
+    .filter((task) =>
+      priorityFilter === "All" ? true : task.priority === priorityFilter
+    );
+
   // ✅ PREVENT CRASH
   if (loading) {
     return <div style={{ color: "white" }}>Loading...</div>;
@@ -82,11 +99,42 @@ function Dashboard() {
         <TaskForm addTask={addTask} />
       </div>
 
+      {/* ✅ Filters */}
+      <div style={{ marginTop: "30px" }}>
+        <input
+          type="text"
+          placeholder="Search task..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ marginRight: "10px" }}
+        />
+
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          style={{ marginRight: "10px" }}
+        >
+          <option value="All">All Status</option>
+          <option value="Pending">Pending</option>
+          <option value="Completed">Completed</option>
+        </select>
+
+        <select
+          value={priorityFilter}
+          onChange={(e) => setPriorityFilter(e.target.value)}
+        >
+          <option value="All">All Priority</option>
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+      </div>
+
       {/* Task List */}
       <div style={{ marginTop: "30px" }}>
-        {tasks.length === 0 && <p>No tasks yet 🚀</p>}
+        {filteredTasks.length === 0 && <p>No tasks found 🚀</p>}
 
-        {tasks.map((task) => (
+        {filteredTasks.map((task) => (
           <div
             key={task.id}
             style={{
