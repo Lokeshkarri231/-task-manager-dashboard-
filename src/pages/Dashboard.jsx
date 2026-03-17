@@ -9,8 +9,13 @@ function Dashboard() {
   const [tasks, setTasks] = useState(() => {
   try {
     const saved = localStorage.getItem("tasks");
-    return saved ? JSON.parse(saved) : [];
-  } catch {
+
+    if (!saved || saved === "undefined") return [];
+
+    return JSON.parse(saved);
+  } catch (error) {
+    console.log("Corrupted tasks, resetting...");
+    localStorage.removeItem("tasks");
     return [];
   }
 });
