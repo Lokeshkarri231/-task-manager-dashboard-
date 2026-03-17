@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "../App.css";
 import { supabase } from "../lib/supabaseClient";
 
 function Login() {
+  const [isSignup, setIsSignup] = useState(false);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -23,28 +27,37 @@ function Login() {
   };
 
   return (
-    <div style={{ padding: "50px", color: "white" }}>
-      <h2>Login</h2>
+    <div className="login-container">
+      <div className="login-card">
 
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <br /><br />
+        <h2 className="login-title">Task Manager</h2>
+        <p className="login-subtitle">Sign in to continue</p>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <br /><br />
+        <form onSubmit={handleLogin}>
 
-        <button type="submit">Login</button>
-      </form>
+          <input
+            className="login-input"
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
+          <input
+            className="login-input"
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          <button className="login-button" type="submit">
+            Login
+          </button>
+
+        </form>
+
+      </div>
     </div>
   );
 }
