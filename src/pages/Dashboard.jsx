@@ -6,6 +6,14 @@ function Dashboard() {
   const navigate = useNavigate();
 
   const [darkMode, setDarkMode] = useState(true);
+  const [tasks, setTasks] = useState(() => {
+  try {
+    const saved = localStorage.getItem("tasks");
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+});
 
   // ✅ session check
   useEffect(() => {
@@ -16,7 +24,13 @@ function Dashboard() {
         navigate("/");
       }
     };
-
+  useEffect(() => {
+  try {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  } catch (err) {
+    console.log("Error saving tasks");
+  }
+}, [tasks]);
     checkUser();
   }, [navigate]);
 
@@ -53,9 +67,9 @@ function Dashboard() {
 
       {/* SAFE CONTENT */}
       <div style={{ padding: "30px", color: "white" }}>
-        <h1>Dashboard Loaded ✅</h1>
-        <p>We will now restore features step-by-step</p>
-      </div>
+  <h1>Dashboard Loaded ✅</h1>
+  <p>Total Tasks: {tasks.length}</p>
+</div>
 
     </div>
   );
