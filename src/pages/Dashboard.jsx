@@ -10,14 +10,14 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   const [tasks, setTasks] = useState([]);
-  const [user, setUser] = useState(null); 
+  const [user, setUser] = useState(null);
 
   // Filters state
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
 
-  // ✅ UPDATED session check (store user)
+  // SESSION CHECK
   useEffect(() => {
     const checkUser = async () => {
       const { data } = await supabase.auth.getSession();
@@ -25,7 +25,7 @@ function Dashboard() {
       if (!data.session) {
         navigate("/");
       } else {
-        setUser(data.session.user); 
+        setUser(data.session.user);
         setLoading(false);
       }
     };
@@ -33,7 +33,7 @@ function Dashboard() {
     checkUser();
   }, [navigate]);
 
-  // ❌ KEEP (temporary fallback - will remove later)
+  // TEMP localStorage fallback
   useEffect(() => {
     try {
       const saved = localStorage.getItem("tasks");
@@ -45,7 +45,7 @@ function Dashboard() {
     }
   }, []);
 
-  // ✅ NEW: Fetch tasks from Supabase
+  // FETCH FROM SUPABASE
   useEffect(() => {
     const fetchTasks = async () => {
       if (!user) return;
@@ -66,24 +66,44 @@ function Dashboard() {
     fetchTasks();
   }, [user]);
 
-  // ❌ KEEP for now
+  // TEMP localStorage save
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
-  // ADD TASK (still local for now)
-  const addTask = (task) => {
-    if (!task) return;
-    setTasks([...tasks, task]);
+  // ✅ INSERT TASK INTO SUPABASE (MAIN CHANGE)
+  const addTask = async (task) => {
+    if (!task || !user) return;
+
+    const { data, error } = await supabase
+      .from("tasks")
+      .insert([
+        {
+          user_id: user.id,
+          title: task.title,
+          description: task.description,
+          status: task.status || "Pending",
+          priority: task.priority,
+          due_date: task.dueDate,
+        },
+      ])
+      .select();
+
+    if (error) {
+      console.log("Error adding task:", error.message);
+    } else {
+      // update UI instantly
+      setTasks([data[0], ...tasks]);
+    }
   };
 
-  // DELETE TASK
+  // DELETE (still local for now)
   const deleteTask = (id) => {
     const updated = tasks.filter((task) => task.id !== id);
     setTasks(updated);
   };
 
-  // TOGGLE STATUS
+  // TOGGLE (still local)
   const toggleComplete = (id) => {
     const updated = tasks.map((task) =>
       task.id === id
@@ -109,7 +129,6 @@ function Dashboard() {
       priorityFilter === "All" ? true : task.priority === priorityFilter
     );
 
-  // PREVENT CRASH
   if (loading) {
     return <div style={{ color: "white" }}>Loading...</div>;
   }
@@ -190,12 +209,12 @@ function Dashboard() {
         ))}
       </div>
 
-      {/* Kanban Board */}
+      {/* Kanban */}
       <div style={{ marginTop: "40px" }}>
         <KanbanBoard tasks={tasks} setTasks={setTasks} />
       </div>
 
-      {/* AI Assistant */}
+      {/* AI */}
       <div style={{ marginTop: "40px" }}>
         <AiAssistant />
       </div>
