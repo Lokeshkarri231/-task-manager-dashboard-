@@ -24,11 +24,9 @@ function Login() {
   if (error) {
     alert(error.message);
   } else {
-    alert("Login successful 🚀");
     navigate("/dashboard");
   }
 };
-
   // 🆕 SIGNUP
   const handleSignup = async (e) => {
     e.preventDefault();
