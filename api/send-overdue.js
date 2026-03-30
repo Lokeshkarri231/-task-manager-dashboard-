@@ -9,29 +9,39 @@ const supabase = createClient(
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
-  const { data, error } = await supabase
+  const today = new Date().toISOString().split("T")[0];
+
+  const { data: tasks, error } = await supabase
     .from("tasks")
-    .select(`
-      title,
-      due_date,
-      profiles ( email )
-    `)
+    .select("id, title, due_date, user_id")
     .eq("status", "Pending")
-    .lt("due_date", new Date().toISOString());
+    .eq("overdue_email_sent", false)
+    .lt("due_date", today);
 
   if (error) {
     return res.status(500).json({ error: error.message });
   }
 
-  for (const task of data) {
-    const email = task.profiles.email;
+  for (const task of tasks) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("email")
+      .eq("id", task.user_id)
+      .single();
 
-    await resend.emails.send({
-      from: "Task Manager <onboarding@resend.dev>",
-      to: email,
-      subject: "Overdue Task Reminder",
-      html: `<p>Your task <b>${task.title}</b> is overdue.</p>`
-    });
+    if (profile?.email) {
+      await resend.emails.send({
+        from: "Task Manager <onboarding@resend.dev>",
+        to: profile.email,
+        subject: "Overdue Task Reminder",
+        html: `<p>Your task <b>${task.title}</b> is overdue.</p>`
+      });
+
+      await supabase
+        .from("tasks")
+        .update({ overdue_email_sent: true })
+        .eq("id", task.id);
+    }
   }
 
   res.status(200).json({ message: "Emails sent" });
