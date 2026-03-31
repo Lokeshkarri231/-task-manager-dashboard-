@@ -31,11 +31,13 @@ export default function useNotifications(userId) {
   }, [userId]);
 
   async function fetchNotifications() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("notifications")
       .select("*")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
+
+    if (error) console.log(error);
 
     setNotifications(data || []);
   }
@@ -46,11 +48,7 @@ export default function useNotifications(userId) {
       .update({ read: true })
       .eq("id", id);
 
-    setNotifications((prev) =>
-      prev.map((n) =>
-        n.id === id ? { ...n, read: true } : n
-      )
-    );
+    fetchNotifications();
   }
 
   const unreadCount = notifications.filter((n) => !n.read).length;
