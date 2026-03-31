@@ -45,6 +45,10 @@ function Navbar() {
       <button onClick={() => navigate("/profile")}>
         Profile
       </button>
+      
+      <button onClick={() => navigate("/notifications")}>
+  Notifications
+</button>
 
       <button onClick={handleLogout}>
         Logout
