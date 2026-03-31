@@ -4,5 +4,11 @@
       "path": "/api/send-overdue",
       "schedule": "0 9 * * *"
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
   ]
 }
