@@ -39,5 +39,18 @@ export default function useNotifications(userId) {
     setNotifications(data || []);
   }
 
-  return notifications;
+  async function markAsRead(id) {
+    await supabase
+      .from("notifications")
+      .update({ is_read: true })
+      .eq("id", id);
+
+    setNotifications((prev) =>
+      prev.map((n) =>
+        n.id === id ? { ...n, is_read: true } : n
+      )
+    );
+  }
+
+  return { notifications, markAsRead };
 }
