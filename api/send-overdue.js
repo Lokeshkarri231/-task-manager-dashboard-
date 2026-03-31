@@ -30,6 +30,7 @@ export default async function handler(req, res) {
       .single();
 
     if (profile?.email) {
+      // ✅ Send email
       await resend.emails.send({
         from: "Task Manager <onboarding@resend.dev>",
         to: profile.email,
@@ -37,6 +38,16 @@ export default async function handler(req, res) {
         html: `<p>Your task <b>${task.title}</b> is overdue.</p>`
       });
 
+      // ✅ Insert notification
+      await supabase.from("notifications").insert([
+        {
+          user_id: task.user_id,
+          title: "Task Overdue",
+          message: `${task.title} is overdue`
+        }
+      ]);
+
+      // ✅ Mark email sent
       await supabase
         .from("tasks")
         .update({ overdue_email_sent: true })
@@ -44,5 +55,5 @@ export default async function handler(req, res) {
     }
   }
 
-  res.status(200).json({ message: "Emails sent" });
+  res.status(200).json({ message: "Emails & notifications sent" });
 }
