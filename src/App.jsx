@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Notifications from "./pages/Notifications";
 import Files from "./pages/Files";
+import Documents from "./pages/Documents";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/files" element={<Files />} />
+        <Route path="/documents" element={<Documents />} />
       </Routes>
     </Router>
   );

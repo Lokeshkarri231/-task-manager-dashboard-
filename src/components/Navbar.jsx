@@ -41,6 +41,10 @@ function Navbar() {
       <button onClick={() => navigate("/dashboard")}>
         Dashboard
       </button>
+      
+      <button onClick={() => navigate("/documents")}>
+  Documents
+</button>
 
       <button onClick={() => navigate("/profile")}>
         Profile
