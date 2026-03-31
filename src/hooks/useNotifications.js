@@ -9,7 +9,6 @@ export default function useNotifications(userId) {
 
     fetchNotifications();
 
-    // Realtime listener
     const channel = supabase
       .channel("notifications-channel")
       .on(
