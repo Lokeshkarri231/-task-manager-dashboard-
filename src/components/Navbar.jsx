@@ -13,7 +13,9 @@ function Navbar() {
   }, []);
 
   async function getUser() {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     setUser(user);
   }
 
@@ -22,9 +24,8 @@ function Navbar() {
     navigate("/");
   }
 
-  const { notifications, markAsRead } = useNotifications(user?.id);
-
-  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const { notifications, unreadCount, markAsRead } =
+    useNotifications(user?.id);
 
   return (
     <div
@@ -34,7 +35,7 @@ function Navbar() {
         padding: "15px",
         background: "#111",
         color: "white",
-        alignItems: "center"
+        alignItems: "center",
       }}
     >
       <button onClick={() => navigate("/dashboard")}>
@@ -66,7 +67,7 @@ function Navbar() {
               width: "260px",
               borderRadius: "8px",
               maxHeight: "300px",
-              overflowY: "auto"
+              overflowY: "auto",
             }}
           >
             {notifications.length === 0 && <p>No notifications</p>}
@@ -80,7 +81,7 @@ function Navbar() {
                   padding: "8px",
                   borderRadius: "6px",
                   cursor: "pointer",
-                  background: n.is_read ? "#333" : "#555"
+                  background: n.read ? "#333" : "#555",
                 }}
               >
                 <strong>{n.title}</strong>

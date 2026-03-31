@@ -9,6 +9,7 @@ export default function useNotifications(userId) {
 
     fetchNotifications();
 
+    // Realtime listener
     const channel = supabase
       .channel("notifications-channel")
       .on(
@@ -34,6 +35,7 @@ export default function useNotifications(userId) {
     const { data } = await supabase
       .from("notifications")
       .select("*")
+      .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
     setNotifications(data || []);
@@ -42,15 +44,17 @@ export default function useNotifications(userId) {
   async function markAsRead(id) {
     await supabase
       .from("notifications")
-      .update({ is_read: true })
+      .update({ read: true })
       .eq("id", id);
 
     setNotifications((prev) =>
       prev.map((n) =>
-        n.id === id ? { ...n, is_read: true } : n
+        n.id === id ? { ...n, read: true } : n
       )
     );
   }
 
-  return { notifications, markAsRead };
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  return { notifications, unreadCount, markAsRead };
 }
