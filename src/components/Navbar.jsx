@@ -49,6 +49,10 @@ function Navbar() {
       <button onClick={() => navigate("/notifications")}>
   Notifications
 </button>
+       
+       <button onClick={() => navigate("/files")}>
+  Files
+</button>
 
       <button onClick={handleLogout}>
         Logout
