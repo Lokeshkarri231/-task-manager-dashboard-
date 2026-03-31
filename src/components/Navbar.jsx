@@ -21,7 +21,10 @@ function Navbar() {
     <div style={{ display: "flex", gap: "20px", padding: "10px" }}>
       <a href="/dashboard">Dashboard</a>
       <a href="/profile">Profile</a>
-      <button onClick={() => supabase.auth.signOut()}>Logout</button>
+
+      <button onClick={() => supabase.auth.signOut()}>
+        Logout
+      </button>
 
       <div style={{ position: "relative" }}>
         <button onClick={() => setShowDropdown(!showDropdown)}>
