@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
+import Navbar from "../components/Navbar";
 
 function Profile() {
   const [profile, setProfile] = useState({
@@ -45,63 +46,68 @@ function Profile() {
   }
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Profile</h2>
+    <>
+      <Navbar />
+      <div style={{ padding: "20px" }}>
+        <h2>Profile</h2>
 
-      <input
-        placeholder="Name"
-        value={profile.name || ""}
-        onChange={(e) =>
-          setProfile({ ...profile, name: e.target.value })
-        }
-      />
-
-      <br /><br />
-
-      <input
-        placeholder="Phone"
-        value={profile.phone || ""}
-        onChange={(e) =>
-          setProfile({ ...profile, phone: e.target.value })
-        }
-      />
-
-      <br /><br />
-
-      <label>
-        Email Notifications
         <input
-          type="checkbox"
-          checked={profile.email_notifications || false}
+          placeholder="Name"
+          value={profile.name || ""}
           onChange={(e) =>
-            setProfile({
-              ...profile,
-              email_notifications: e.target.checked,
-            })
+            setProfile({ ...profile, name: e.target.value })
           }
         />
-      </label>
 
-      <br /><br />
+        <br /><br />
 
-      <label>
-        SMS Notifications
         <input
-          type="checkbox"
-          checked={profile.sms_notifications || false}
+          placeholder="Phone"
+          value={profile.phone || ""}
           onChange={(e) =>
-            setProfile({
-              ...profile,
-              sms_notifications: e.target.checked,
-            })
+            setProfile({ ...profile, phone: e.target.value })
           }
         />
-      </label>
 
-      <br /><br />
+        <br /><br />
 
-      <button onClick={updateProfile}>Save Profile</button>
-    </div>
+        <label>
+          Email Notifications
+          <input
+            type="checkbox"
+            checked={profile.email_notifications || false}
+            onChange={(e) =>
+              setProfile({
+                ...profile,
+                email_notifications: e.target.checked,
+              })
+            }
+          />
+        </label>
+
+        <br /><br />
+
+        <label>
+          SMS Notifications
+          <input
+            type="checkbox"
+            checked={profile.sms_notifications || false}
+            onChange={(e) =>
+              setProfile({
+                ...profile,
+                sms_notifications: e.target.checked,
+              })
+            }
+          />
+        </label>
+
+        <br /><br />
+
+        <button onClick={updateProfile}>
+          Save Profile
+        </button>
+      </div>
+    </>
   );
 }
 

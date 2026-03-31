@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabaseClient";
 import TaskForm from "../components/TaskForm";
 import KanbanBoard from "../components/KanbanBoard";
 import AiAssistant from "../components/AiAssistant";
+import Navbar from "../components/Navbar";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -12,12 +13,10 @@ function Dashboard() {
   const [tasks, setTasks] = useState([]);
   const [user, setUser] = useState(null);
 
-  // Filters state
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
 
-  // SESSION CHECK
   useEffect(() => {
     const checkUser = async () => {
       const { data } = await supabase.auth.getSession();
@@ -33,7 +32,6 @@ function Dashboard() {
     checkUser();
   }, [navigate]);
 
-  // FETCH FROM SUPABASE
   useEffect(() => {
     const fetchTasks = async () => {
       if (!user) return;
@@ -45,7 +43,7 @@ function Dashboard() {
         .order("created_at", { ascending: false });
 
       if (error) {
-        console.log("Error fetching tasks:", error.message);
+        console.log(error.message);
       } else {
         setTasks(data);
       }
@@ -54,7 +52,6 @@ function Dashboard() {
     fetchTasks();
   }, [user]);
 
-  // CREATE
   const addTask = async (task) => {
     if (!task || !user) return;
 
@@ -72,28 +69,16 @@ function Dashboard() {
       ])
       .select();
 
-    if (error) {
-      console.log("Error adding task:", error.message);
-    } else {
+    if (!error) {
       setTasks([data[0], ...tasks]);
     }
   };
 
-  // DELETE
   const deleteTask = async (id) => {
-    const { error } = await supabase
-      .from("tasks")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
-      console.log("Delete error:", error.message);
-    } else {
-      setTasks(tasks.filter((task) => task.id !== id));
-    }
+    await supabase.from("tasks").delete().eq("id", id);
+    setTasks(tasks.filter((task) => task.id !== id));
   };
 
-  // UPDATE (TOGGLE)
   const toggleComplete = async (id) => {
     const task = tasks.find((t) => t.id === id);
     if (!task) return;
@@ -101,22 +86,17 @@ function Dashboard() {
     const newStatus =
       task.status === "Pending" ? "Completed" : "Pending";
 
-    const { error } = await supabase
+    await supabase
       .from("tasks")
       .update({ status: newStatus })
       .eq("id", id);
 
-    if (error) {
-      console.log("Update error:", error.message);
-    } else {
-      const updated = tasks.map((t) =>
-        t.id === id ? { ...t, status: newStatus } : t
-      );
-      setTasks(updated);
-    }
+    const updated = tasks.map((t) =>
+      t.id === id ? { ...t, status: newStatus } : t
+    );
+    setTasks(updated);
   };
 
-  // FILTER LOGIC
   const filteredTasks = tasks
     .filter((task) =>
       task.title?.toLowerCase().includes(search.toLowerCase())
@@ -125,99 +105,74 @@ function Dashboard() {
       statusFilter === "All" ? true : task.status === statusFilter
     )
     .filter((task) =>
-      priorityFilter === "All" ? true : task.priority === priorityFilter
+      priorityFilter === "All"
+        ? true
+        : task.priority === priorityFilter
     );
 
-  if (loading) {
-    return <div style={{ color: "white" }}>Loading...</div>;
-  }
+  if (loading) return <div>Loading...</div>;
 
   return (
-    <div style={{ color: "white", padding: "30px" }}>
-      <h1>Dashboard ✅</h1>
-      <p>Total Tasks: {tasks.length}</p>
+    <>
+      <Navbar />
 
-      {/* Task Form */}
-      <div style={{ marginTop: "20px" }}>
+      <div style={{ color: "white", padding: "30px" }}>
+        <h1>Dashboard</h1>
+        <p>Total Tasks: {tasks.length}</p>
+
         <TaskForm addTask={addTask} />
-      </div>
 
-      {/* Filters */}
-      <div style={{ marginTop: "30px" }}>
-        <input
-          type="text"
-          placeholder="Search task..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{ marginRight: "10px" }}
-        />
+        <div style={{ marginTop: "20px" }}>
+          <input
+            type="text"
+            placeholder="Search task..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          style={{ marginRight: "10px" }}
-        >
-          <option value="All">All Status</option>
-          <option value="Pending">Pending</option>
-          <option value="Completed">Completed</option>
-        </select>
-
-        <select
-          value={priorityFilter}
-          onChange={(e) => setPriorityFilter(e.target.value)}
-        >
-          <option value="All">All Priority</option>
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-        </select>
-      </div>
-
-      {/* Task List */}
-      <div style={{ marginTop: "30px" }}>
-        {filteredTasks.length === 0 && <p>No tasks found 🚀</p>}
-
-        {filteredTasks.map((task) => (
-          <div
-            key={task.id}
-            style={{
-              border: "1px solid #444",
-              padding: "15px",
-              marginBottom: "10px",
-              borderRadius: "8px",
-            }}
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
           >
-            <h3>{task.title}</h3>
-            <p>{task.description}</p>
+            <option value="All">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="Completed">Completed</option>
+          </select>
 
-            <p>Status: {task.status}</p>
-            <p>Priority: {task.priority}</p>
-            <p>Due Date: {task.due_date}</p>
+          <select
+            value={priorityFilter}
+            onChange={(e) => setPriorityFilter(e.target.value)}
+          >
+            <option value="All">All Priority</option>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+          </select>
+        </div>
 
-            <button onClick={() => toggleComplete(task.id)}>
-              Toggle
-            </button>
+        <div style={{ marginTop: "20px" }}>
+          {filteredTasks.map((task) => (
+            <div key={task.id}>
+              <h3>{task.title}</h3>
+              <p>{task.description}</p>
+              <p>Status: {task.status}</p>
+              <p>Priority: {task.priority}</p>
+              <p>Due Date: {task.due_date}</p>
 
-            <button
-              onClick={() => deleteTask(task.id)}
-              style={{ marginLeft: "10px" }}
-            >
-              Delete
-            </button>
-          </div>
-        ))}
-      </div>
+              <button onClick={() => toggleComplete(task.id)}>
+                Toggle
+              </button>
+              <button onClick={() => deleteTask(task.id)}>
+                Delete
+              </button>
+            </div>
+          ))}
+        </div>
 
-      {/* Kanban */}
-      <div style={{ marginTop: "40px" }}>
         <KanbanBoard tasks={tasks} setTasks={setTasks} />
-      </div>
-
-      {/* AI */}
-      <div style={{ marginTop: "40px" }}>
         <AiAssistant />
       </div>
-    </div>
+    </>
   );
 }
 
