@@ -17,6 +17,9 @@ function Dashboard() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
 
+  // ✅ NEW (STEP 6)
+  const [selectedFile, setSelectedFile] = useState(null);
+
   useEffect(() => {
     const checkUser = async () => {
       const { data, error } = await supabase.auth.getSession();
@@ -145,7 +148,7 @@ function Dashboard() {
         </select>
       </div>
 
-      {/* 🔥 MODERN TASK CARDS (STEP 3) */}
+      {/* 🔥 TASK CARDS */}
       <div style={{ marginTop: "20px" }}>
         {filteredTasks.map((task) => (
           <div
@@ -155,15 +158,13 @@ function Dashboard() {
               borderRadius: "14px",
               background: "#020617",
               marginBottom: "12px",
-              border: "1px solid #1e293b",
-              transition: "0.2s"
+              border: "1px solid #1e293b"
             }}
           >
             {/* Top Row */}
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               <h3 style={{ fontSize: "16px" }}>{task.title}</h3>
 
-              {/* Priority Badge */}
               <span
                 style={{
                   padding: "4px 10px",
@@ -187,13 +188,12 @@ function Dashboard() {
               {task.description}
             </p>
 
-            {/* Bottom Row */}
+            {/* Bottom */}
             <div
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                marginTop: "12px",
-                alignItems: "center"
+                marginTop: "12px"
               }}
             >
               <span style={{ fontSize: "12px", color: "#64748b" }}>
@@ -215,35 +215,88 @@ function Dashboard() {
 
             {/* Actions */}
             <div style={{ marginTop: "12px", display: "flex", gap: "10px" }}>
-              <button
-                onClick={() => toggleComplete(task.id)}
-                style={{
-                  padding: "6px 10px",
-                  borderRadius: "6px",
-                  background: "#1e293b",
-                  color: "white",
-                  border: "none"
-                }}
-              >
+              <button onClick={() => toggleComplete(task.id)}>
                 Toggle
               </button>
 
-              <button
-                onClick={() => deleteTask(task.id)}
-                style={{
-                  padding: "6px 10px",
-                  borderRadius: "6px",
-                  background: "#7f1d1d",
-                  color: "white",
-                  border: "none"
-                }}
-              >
+              <button onClick={() => deleteTask(task.id)}>
                 Delete
               </button>
+
+              {/* ✅ STEP 6 VIEW BUTTON */}
+              {task.file_url && (
+                <button
+                  onClick={() => setSelectedFile(task.file_url)}
+                  style={{
+                    background: "#0ea5e9",
+                    color: "white",
+                    border: "none",
+                    padding: "6px 10px",
+                    borderRadius: "6px"
+                  }}
+                >
+                  View File
+                </button>
+              )}
             </div>
           </div>
         ))}
       </div>
+
+      {/* ✅ STEP 6 MODAL */}
+      {selectedFile && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0,0,0,0.8)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000
+          }}
+        >
+          <div
+            style={{
+              width: "80%",
+              height: "80%",
+              background: "#020617",
+              borderRadius: "10px",
+              padding: "10px",
+              position: "relative"
+            }}
+          >
+            <button
+              onClick={() => setSelectedFile(null)}
+              style={{
+                position: "absolute",
+                top: "10px",
+                right: "10px",
+                background: "red",
+                color: "white",
+                border: "none",
+                padding: "5px 10px"
+              }}
+            >
+              X
+            </button>
+
+            <iframe
+              src={selectedFile}
+              title="Document"
+              style={{
+                width: "100%",
+                height: "100%",
+                border: "none",
+                borderRadius: "8px"
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       <KanbanBoard tasks={tasks} setTasks={setTasks} />
       <AiAssistant />
