@@ -17,8 +17,11 @@ function Dashboard() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
 
-  // ✅ NEW (STEP 6)
+  // ✅ STEP 6
   const [selectedFile, setSelectedFile] = useState(null);
+
+  // ✅ STEP 7 (AI PANEL)
+  const [showAI, setShowAI] = useState(false);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -51,7 +54,6 @@ function Dashboard() {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Fetch error:", error.message);
       alert("Failed to load tasks");
       return;
     }
@@ -64,13 +66,7 @@ function Dashboard() {
   }, [user]);
 
   const deleteTask = async (id) => {
-    const { error } = await supabase.from("tasks").delete().eq("id", id);
-
-    if (error) {
-      alert("Delete failed");
-      return;
-    }
-
+    await supabase.from("tasks").delete().eq("id", id);
     fetchTasks();
   };
 
@@ -148,7 +144,7 @@ function Dashboard() {
         </select>
       </div>
 
-      {/* 🔥 TASK CARDS */}
+      {/* TASK CARDS */}
       <div style={{ marginTop: "20px" }}>
         {filteredTasks.map((task) => (
           <div
@@ -161,9 +157,8 @@ function Dashboard() {
               border: "1px solid #1e293b"
             }}
           >
-            {/* Top Row */}
             <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <h3 style={{ fontSize: "16px" }}>{task.title}</h3>
+              <h3>{task.title}</h3>
 
               <span
                 style={{
@@ -183,38 +178,14 @@ function Dashboard() {
               </span>
             </div>
 
-            {/* Description */}
-            <p style={{ color: "#94a3b8", marginTop: "6px" }}>
-              {task.description}
-            </p>
+            <p style={{ color: "#94a3b8" }}>{task.description}</p>
 
-            {/* Bottom */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginTop: "12px"
-              }}
-            >
-              <span style={{ fontSize: "12px", color: "#64748b" }}>
-                Due: {task.due_date}
-              </span>
-
-              <span
-                style={{
-                  fontSize: "12px",
-                  color:
-                    task.status === "Completed"
-                      ? "#22c55e"
-                      : "#f59e0b"
-                }}
-              >
-                ● {task.status}
-              </span>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span>Due: {task.due_date}</span>
+              <span>{task.status}</span>
             </div>
 
-            {/* Actions */}
-            <div style={{ marginTop: "12px", display: "flex", gap: "10px" }}>
+            <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
               <button onClick={() => toggleComplete(task.id)}>
                 Toggle
               </button>
@@ -223,18 +194,8 @@ function Dashboard() {
                 Delete
               </button>
 
-              {/* ✅ STEP 6 VIEW BUTTON */}
               {task.file_url && (
-                <button
-                  onClick={() => setSelectedFile(task.file_url)}
-                  style={{
-                    background: "#0ea5e9",
-                    color: "white",
-                    border: "none",
-                    padding: "6px 10px",
-                    borderRadius: "6px"
-                  }}
-                >
+                <button onClick={() => setSelectedFile(task.file_url)}>
                   View File
                 </button>
               )}
@@ -243,65 +204,81 @@ function Dashboard() {
         ))}
       </div>
 
-      {/* ✅ STEP 6 MODAL */}
+      {/* FILE MODAL */}
       {selectedFile && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            background: "rgba(0,0,0,0.8)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000
-          }}
-        >
-          <div
-            style={{
-              width: "80%",
-              height: "80%",
-              background: "#020617",
-              borderRadius: "10px",
-              padding: "10px",
-              position: "relative"
-            }}
-          >
-            <button
-              onClick={() => setSelectedFile(null)}
-              style={{
-                position: "absolute",
-                top: "10px",
-                right: "10px",
-                background: "red",
-                color: "white",
-                border: "none",
-                padding: "5px 10px"
-              }}
-            >
-              X
-            </button>
-
-            <iframe
-              src={selectedFile}
-              title="Document"
-              style={{
-                width: "100%",
-                height: "100%",
-                border: "none",
-                borderRadius: "8px"
-              }}
-            />
+        <div style={modalStyle}>
+          <div style={modalBox}>
+            <button onClick={() => setSelectedFile(null)}>X</button>
+            <iframe src={selectedFile} style={{ width: "100%", height: "100%" }} />
           </div>
         </div>
       )}
 
       <KanbanBoard tasks={tasks} setTasks={setTasks} />
-      <AiAssistant />
+
+      {/* 🔥 AI FLOAT BUTTON */}
+      <div
+        onClick={() => setShowAI(true)}
+        style={{
+          position: "fixed",
+          bottom: "20px",
+          right: "20px",
+          background: "#3b82f6",
+          color: "white",
+          padding: "12px 16px",
+          borderRadius: "999px",
+          cursor: "pointer"
+        }}
+      >
+        💬 AI
+      </div>
+
+      {/* 🔥 AI PANEL */}
+      {showAI && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "80px",
+            right: "20px",
+            width: "350px",
+            height: "500px",
+            background: "#020617",
+            borderRadius: "12px",
+            display: "flex",
+            flexDirection: "column"
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", padding: "10px" }}>
+            <span>AI Assistant</span>
+            <button onClick={() => setShowAI(false)}>X</button>
+          </div>
+
+          <div style={{ flex: 1, overflow: "auto" }}>
+            <AiAssistant />
+          </div>
+        </div>
+      )}
     </Layout>
   );
 }
+
+const modalStyle = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "100%",
+  background: "rgba(0,0,0,0.8)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center"
+};
+
+const modalBox = {
+  width: "80%",
+  height: "80%",
+  background: "#020617",
+  padding: "10px"
+};
 
 export default Dashboard;
