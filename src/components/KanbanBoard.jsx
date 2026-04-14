@@ -24,7 +24,6 @@ function KanbanBoard({ tasks, setTasks }) {
         ? { ...task, status: newStatus }
         : task
     );
-
     setTasks(updated);
   };
 
