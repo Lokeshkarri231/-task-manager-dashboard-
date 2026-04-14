@@ -237,6 +237,7 @@ function Dashboard() {
           style={modalStyle}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
         >
           <div style={modalBox}>
             <button onClick={() => setSelectedFile(null)}>X</button>
