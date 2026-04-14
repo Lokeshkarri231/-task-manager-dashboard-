@@ -5,7 +5,7 @@ import TaskForm from "../components/TaskForm";
 import KanbanBoard from "../components/KanbanBoard";
 import AiAssistant from "../components/AiAssistant";
 import Layout from "../components/Layout";
-import { motion } from "framer-motion"; // ✅ NEW
+import { motion } from "framer-motion";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -172,14 +172,16 @@ function Dashboard() {
             style={{
               padding: "15px",
               background: "#020617",
-              marginBottom: "10px"
+              marginBottom: "10px",
+              borderRadius: "10px"
             }}
           >
             <h3>{task.title}</h3>
             <p>{task.description}</p>
 
             <div>
-              <span>Due: {task.due_date}</span> | <span>{task.status}</span>
+              <span>Due: {task.due_date}</span> |{" "}
+              <span>{task.status}</span>
             </div>
 
             <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
@@ -188,6 +190,7 @@ function Dashboard() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => toggleComplete(task.id)}
+                style={btnStyle}
               >
                 Toggle
               </motion.button>
@@ -196,6 +199,7 @@ function Dashboard() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => deleteTask(task.id)}
+                style={btnStyle}
               >
                 Delete
               </motion.button>
@@ -207,6 +211,7 @@ function Dashboard() {
                   const email = prompt("Enter user email:");
                   if (email) shareTask(task.id, email);
                 }}
+                style={btnStyle}
               >
                 Share
               </motion.button>
@@ -216,6 +221,7 @@ function Dashboard() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setSelectedFile(task.file_url)}
+                  style={btnStyle}
                 >
                   View File
                 </motion.button>
@@ -234,7 +240,10 @@ function Dashboard() {
         >
           <div style={modalBox}>
             <button onClick={() => setSelectedFile(null)}>X</button>
-            <iframe src={selectedFile} style={{ width: "100%", height: "100%" }} />
+            <iframe
+              src={selectedFile}
+              style={{ width: "100%", height: "100%" }}
+            />
           </div>
         </motion.div>
       )}
@@ -264,6 +273,15 @@ function Dashboard() {
     </Layout>
   );
 }
+
+const btnStyle = {
+  padding: "6px 10px",
+  borderRadius: "6px",
+  border: "1px solid #1e293b",
+  background: "#0f172a",
+  color: "white",
+  cursor: "pointer"
+};
 
 const modalStyle = {
   position: "fixed",
