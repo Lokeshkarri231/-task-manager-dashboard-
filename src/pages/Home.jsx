@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion"; // ✅ NEW
 
 function Home() {
   const navigate = useNavigate();
@@ -8,12 +9,15 @@ function Home() {
     <div style={{ background: "#020617", color: "white", minHeight: "100vh" }}>
       
       {/* HERO */}
-      <div
+      <motion.div
         style={{
           textAlign: "center",
           padding: "100px 20px",
           background: "linear-gradient(to bottom, #020617, #0f172a)"
         }}
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
       >
         <h1 style={{ fontSize: "48px", marginBottom: "20px", fontWeight: "bold" }}>
           AI-Powered Task Manager 🚀
@@ -32,16 +36,19 @@ function Home() {
             Get Started
           </button>
 
-          <button
-            style={secondaryBtn}
-          >
+          <button style={secondaryBtn}>
             Learn More
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* FEATURES */}
-      <div style={{ padding: "60px 20px", textAlign: "center" }}>
+      <motion.div
+        style={{ padding: "60px 20px", textAlign: "center" }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+      >
         <h2 style={{ marginBottom: "40px" }}>Features</h2>
 
         <div style={{ display: "flex", justifyContent: "center", gap: "20px", flexWrap: "wrap" }}>
@@ -51,14 +58,20 @@ function Home() {
             { title: "Team Collaboration 👥", desc: "Share tasks and work together" },
             { title: "File Management 📄", desc: "Upload and view files inside app" }
           ].map((f, i) => (
-            <div key={i} style={featureCard}>
+            <motion.div
+              key={i}
+              style={featureCard}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.2 }}
+            >
               <h3>{f.title}</h3>
               <p style={{ color: "#94a3b8" }}>{f.desc}</p>
-            </div>
+            </motion.div>
           ))}
 
         </div>
-      </div>
+      </motion.div>
 
       {/* PRICING */}
       <div style={{ padding: "60px 20px", textAlign: "center" }}>
@@ -66,14 +79,12 @@ function Home() {
 
         <div style={{ display: "flex", justifyContent: "center", gap: "20px", marginTop: "30px", flexWrap: "wrap" }}>
           
-          {/* FREE */}
           <div style={pricingCard}>
             <h3>Free</h3>
             <p style={{ fontSize: "24px" }}>₹0</p>
             <p>5 Tasks Limit</p>
           </div>
 
-          {/* PRO */}
           <div style={{ ...pricingCard, border: "2px solid #3b82f6" }}>
             <h3>Pro</h3>
             <p style={{ fontSize: "24px" }}>₹199/mo</p>

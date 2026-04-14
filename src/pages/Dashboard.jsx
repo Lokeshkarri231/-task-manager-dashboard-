@@ -186,43 +186,23 @@ function Dashboard() {
 
             <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
               
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => toggleComplete(task.id)}
-                style={btnStyle}
-              >
+              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => toggleComplete(task.id)} style={btnStyle}>
                 Toggle
               </motion.button>
 
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => deleteTask(task.id)}
-                style={btnStyle}
-              >
+              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => deleteTask(task.id)} style={btnStyle}>
                 Delete
               </motion.button>
 
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  const email = prompt("Enter user email:");
-                  if (email) shareTask(task.id, email);
-                }}
-                style={btnStyle}
-              >
+              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => {
+                const email = prompt("Enter user email:");
+                if (email) shareTask(task.id, email);
+              }} style={btnStyle}>
                 Share
               </motion.button>
 
               {task.file_url && (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setSelectedFile(task.file_url)}
-                  style={btnStyle}
-                >
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setSelectedFile(task.file_url)} style={btnStyle}>
                   View File
                 </motion.button>
               )}
@@ -241,10 +221,7 @@ function Dashboard() {
         >
           <div style={modalBox}>
             <button onClick={() => setSelectedFile(null)}>X</button>
-            <iframe
-              src={selectedFile}
-              style={{ width: "100%", height: "100%" }}
-            />
+            <iframe src={selectedFile} style={{ width: "100%", height: "100%" }} />
           </div>
         </motion.div>
       )}
@@ -262,6 +239,7 @@ function Dashboard() {
           style={aiPanel}
           initial={{ x: 100, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.3 }} // ✅ added smooth slide
         >
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <span>AI Assistant</span>
