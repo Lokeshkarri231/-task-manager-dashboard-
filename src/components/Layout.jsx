@@ -26,12 +26,10 @@ function Layout({ children }) {
           borderRight: "1px solid #1e293b"
         }}
       >
-        {/* Logo */}
         <h2 style={{ fontSize: "22px", marginBottom: "30px" }}>
           TaskFlow
         </h2>
 
-        {/* Menu */}
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
           {menu.map((item) => {
             const isActive = location.pathname === item.path;
@@ -57,16 +55,72 @@ function Layout({ children }) {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div
-        style={{
-          flex: 1,
-          padding: "30px",
-          overflowY: "auto",
-          color: "white"
-        }}
-      >
-        {children}
+      {/* Main Section */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        
+        {/* 🔥 TOPBAR */}
+        <div
+          style={{
+            height: "60px",
+            background: "#020617",
+            borderBottom: "1px solid #1e293b",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "0 20px"
+          }}
+        >
+          {/* Search */}
+          <input
+            type="text"
+            placeholder="Search..."
+            style={{
+              padding: "8px 12px",
+              borderRadius: "6px",
+              border: "1px solid #1e293b",
+              background: "#0f172a",
+              color: "white",
+              width: "250px"
+            }}
+          />
+
+          {/* Right Section */}
+          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+            
+            {/* Notification Icon */}
+            <div style={{ cursor: "pointer" }}>
+              🔔
+            </div>
+
+            {/* User Avatar */}
+            <div
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "50%",
+                background: "#1e293b",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "14px"
+              }}
+            >
+              U
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div
+          style={{
+            flex: 1,
+            padding: "30px",
+            overflowY: "auto",
+            color: "white"
+          }}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );
