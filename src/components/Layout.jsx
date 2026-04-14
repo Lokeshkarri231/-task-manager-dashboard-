@@ -1,8 +1,13 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { supabase } from "../lib/supabaseClient";
 
 function Layout({ children }) {
   const location = useLocation();
+
+  // ✅ STEP 8 STATES
+  const [notifications, setNotifications] = React.useState([]);
+  const [showNotif, setShowNotif] = React.useState(false);
 
   const menu = [
     { name: "Dashboard", path: "/dashboard" },
@@ -10,6 +15,20 @@ function Layout({ children }) {
     { name: "Notifications", path: "/notifications" },
     { name: "Profile", path: "/profile" }
   ];
+
+  // ✅ FETCH NOTIFICATIONS
+  React.useEffect(() => {
+    const fetchNotifications = async () => {
+      const { data } = await supabase
+        .from("notifications")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (data) setNotifications(data);
+    };
+
+    fetchNotifications();
+  }, []);
 
   return (
     <div style={{ display: "flex", height: "100vh", background: "#0b1120" }}>
@@ -67,7 +86,8 @@ function Layout({ children }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "0 20px"
+            padding: "0 20px",
+            position: "relative"
           }}
         >
           {/* Search */}
@@ -87,9 +107,30 @@ function Layout({ children }) {
           {/* Right Section */}
           <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
             
-            {/* Notification Icon */}
-            <div style={{ cursor: "pointer" }}>
+            {/* 🔔 NOTIFICATION ICON */}
+            <div
+              onClick={() => setShowNotif(!showNotif)}
+              style={{ position: "relative", cursor: "pointer" }}
+            >
               🔔
+
+              {/* 🔴 UNREAD COUNT */}
+              {notifications.filter((n) => !n.read).length > 0 && (
+                <span
+                  style={{
+                    position: "absolute",
+                    top: "-5px",
+                    right: "-5px",
+                    background: "red",
+                    color: "white",
+                    fontSize: "10px",
+                    padding: "2px 6px",
+                    borderRadius: "999px"
+                  }}
+                >
+                  {notifications.filter((n) => !n.read).length}
+                </span>
+              )}
             </div>
 
             {/* User Avatar */}
@@ -108,6 +149,42 @@ function Layout({ children }) {
               U
             </div>
           </div>
+
+          {/* 🔥 NOTIFICATION PANEL */}
+          {showNotif && (
+            <div
+              style={{
+                position: "absolute",
+                top: "60px",
+                right: "20px",
+                width: "300px",
+                background: "#020617",
+                border: "1px solid #1e293b",
+                borderRadius: "10px",
+                padding: "10px",
+                zIndex: 1000
+              }}
+            >
+              <h4 style={{ marginBottom: "10px" }}>Notifications</h4>
+
+              {notifications.length === 0 ? (
+                <p>No notifications</p>
+              ) : (
+                notifications.map((n) => (
+                  <div
+                    key={n.id}
+                    style={{
+                      padding: "8px",
+                      borderBottom: "1px solid #1e293b",
+                      fontSize: "13px"
+                    }}
+                  >
+                    {n.message}
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </div>
 
         {/* Content */}
