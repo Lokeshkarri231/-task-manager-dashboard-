@@ -17,9 +17,16 @@ function Dashboard() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
 
+  // ✅ Check logged-in user (FIXED ERROR HANDLING)
   useEffect(() => {
     const checkUser = async () => {
-      const { data } = await supabase.auth.getSession();
+      const { data, error } = await supabase.auth.getSession();
+
+      if (error) {
+        console.error("Auth error:", error.message);
+        navigate("/");
+        return;
+      }
 
       if (!data.session) {
         navigate("/");
@@ -32,53 +39,49 @@ function Dashboard() {
     checkUser();
   }, [navigate]);
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from("tasks")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.log(error.message);
-      } else {
-        setTasks(data);
-      }
-    };
-
-    fetchTasks();
-  }, [user]);
-
-  const addTask = async (task) => {
-    if (!task || !user) return;
+  // ✅ Fetch tasks from DB (FIXED ERROR HANDLING)
+  const fetchTasks = async () => {
+    if (!user) return;
 
     const { data, error } = await supabase
       .from("tasks")
-      .insert([
-        {
-          user_id: user.id,
-          title: task.title,
-          description: task.description,
-          status: task.status || "Pending",
-          priority: task.priority,
-          due_date: task.dueDate,
-        },
-      ])
-      .select();
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
 
-    if (!error) {
-      setTasks([data[0], ...tasks]);
+    if (error) {
+      console.error("Fetch error:", error.message);
+      alert("Failed to load tasks");
+      return;
     }
+
+    setTasks(data);
   };
 
+  // ✅ Load tasks when user is available
+  useEffect(() => {
+    if (user) {
+      fetchTasks();
+    }
+  }, [user]);
+
+  // ✅ Delete task (FIXED ERROR HANDLING)
   const deleteTask = async (id) => {
-    await supabase.from("tasks").delete().eq("id", id);
-    setTasks(tasks.filter((task) => task.id !== id));
+    const { error } = await supabase
+      .from("tasks")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.error("Delete error:", error.message);
+      alert("Failed to delete task");
+      return;
+    }
+
+    fetchTasks();
   };
 
+  // ✅ Toggle task status (FIXED ERROR HANDLING)
   const toggleComplete = async (id) => {
     const task = tasks.find((t) => t.id === id);
     if (!task) return;
@@ -86,17 +89,21 @@ function Dashboard() {
     const newStatus =
       task.status === "Pending" ? "Completed" : "Pending";
 
-    await supabase
+    const { error } = await supabase
       .from("tasks")
       .update({ status: newStatus })
       .eq("id", id);
 
-    const updated = tasks.map((t) =>
-      t.id === id ? { ...t, status: newStatus } : t
-    );
-    setTasks(updated);
+    if (error) {
+      console.error("Update error:", error.message);
+      alert("Failed to update task");
+      return;
+    }
+
+    fetchTasks();
   };
 
+  // ✅ Filtering logic
   const filteredTasks = tasks
     .filter((task) =>
       task.title?.toLowerCase().includes(search.toLowerCase())
@@ -120,7 +127,8 @@ function Dashboard() {
         <h1>Dashboard</h1>
         <p>Total Tasks: {tasks.length}</p>
 
-        <TaskForm addTask={addTask} />
+        {/* ✅ Pass fetchTasks */}
+        <TaskForm addTask={fetchTasks} />
 
         <div style={{ marginTop: "20px" }}>
           <input

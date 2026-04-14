@@ -7,7 +7,9 @@ function TaskForm({ addTask }) {
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState("Low");
   const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
 
+  // 🔹 Upload file to Supabase Storage
   async function uploadFile(file) {
     if (!file) return null;
 
@@ -18,6 +20,7 @@ function TaskForm({ addTask }) {
       .upload(fileName, file);
 
     if (error) {
+      console.error("Upload error:", error);
       alert("File upload failed");
       return null;
     }
@@ -29,31 +32,107 @@ function TaskForm({ addTask }) {
     return data.publicUrl;
   }
 
+  // 🔹 Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    let fileUrl = null;
+    // ✅ PROBLEM 5 FIX — IMPROVED VALIDATION
+    const cleanTitle = title.trim();
+    const cleanDescription = description.trim();
 
-    if (file) {
-      fileUrl = await uploadFile(file);
+    if (!cleanTitle || !dueDate) {
+      alert("Title and due date are required");
+      return;
     }
 
-    const newTask = {
-      title,
-      description,
-      due_date: dueDate,
-      priority,
-      status: "Pending",
-      file_url: fileUrl,
-    };
+    if (cleanTitle.length > 100) {
+      alert("Title too long (max 100 characters)");
+      return;
+    }
 
-    addTask(newTask);
+    if (cleanDescription.length > 500) {
+      alert("Description too long (max 500 characters)");
+      return;
+    }
 
-    setTitle("");
-    setDescription("");
-    setDueDate("");
-    setPriority("Low");
-    setFile(null);
+    if (file && file.size > 2 * 1024 * 1024) {
+      alert("File too large (max 2MB)");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // ✅ Get logged-in user
+      const {
+        data: { user },
+        error: userError
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        alert("User not logged in");
+        setLoading(false);
+        return;
+      }
+
+      let fileUrl = null;
+
+      // ✅ Upload file safely
+      if (file) {
+        fileUrl = await uploadFile(file);
+
+        if (!fileUrl) {
+          console.warn("File upload failed — stopping task creation");
+          setLoading(false);
+          return;
+        }
+      }
+
+      // ✅ Insert into database (USE CLEAN VALUES)
+      const { data, error } = await supabase
+        .from("tasks")
+        .insert([
+          {
+            title: cleanTitle,
+            description: cleanDescription,
+            due_date: dueDate,
+            priority,
+            status: "Pending",
+            file_url: fileUrl,
+            user_id: user.id,
+            overdue_email_sent: false
+          }
+        ])
+        .select();
+
+      if (error) {
+        console.error("Insert error:", error);
+        alert(error.message);
+        setLoading(false);
+        return;
+      }
+
+      console.log("Task added:", data);
+
+      // ✅ Refresh tasks
+      if (addTask && data && data.length > 0) {
+        addTask();
+      }
+
+      // ✅ Reset form
+      setTitle("");
+      setDescription("");
+      setDueDate("");
+      setPriority("Low");
+      setFile(null);
+
+      alert("Task added successfully");
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      alert("Something went wrong");
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -66,6 +145,7 @@ function TaskForm({ addTask }) {
         placeholder="Task title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
+        required
       />
       <br /><br />
 
@@ -83,6 +163,7 @@ function TaskForm({ addTask }) {
         type="date"
         value={dueDate}
         onChange={(e) => setDueDate(e.target.value)}
+        required
       />
       <br /><br />
 
@@ -106,7 +187,9 @@ function TaskForm({ addTask }) {
 
       <br /><br />
 
-      <button className="add-task-btn">Add Task</button>
+      <button className="add-task-btn" disabled={loading}>
+        {loading ? "Adding..." : "Add Task"}
+      </button>
     </form>
   );
 }

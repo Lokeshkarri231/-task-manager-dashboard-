@@ -9,51 +9,100 @@ const supabase = createClient(
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
-  const today = new Date().toISOString().split("T")[0];
+  if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
+  return res.status(401).json({ error: "Unauthorized" });
+}
+  try {
+    // ✅ FIXED DATE (Problem 7)
+    const today = new Date().toISOString().split("T")[0];
 
-  const { data: tasks, error } = await supabase
-    .from("tasks")
-    .select("id, title, due_date, user_id")
-    .eq("status", "Pending")
-    .eq("overdue_email_sent", false)
-    .lt("due_date", today);
+    const { data: tasks, error } = await supabase
+      .from("tasks")
+      .select(`
+        id,
+        title,
+        due_date,
+        user_id,
+        profiles (email)
+      `)
+      .eq("status", "Pending")
+      .eq("overdue_email_sent", false)
+      .lt("due_date", today);
 
-  if (error) {
-    return res.status(500).json({ error: error.message });
-  }
+    if (error) throw error;
 
-  for (const task of tasks) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("email")
-      .eq("id", task.user_id)
-      .single();
-
-    if (profile?.email) {
-      // ✅ Send email
-      await resend.emails.send({
-        from: "Task Manager <onboarding@resend.dev>",
-        to: profile.email,
-        subject: "Overdue Task Reminder",
-        html: `<p>Your task <b>${task.title}</b> is overdue.</p>`
-      });
-
-      // ✅ Insert notification
-      await supabase.from("notifications").insert([
-        {
-          user_id: task.user_id,
-          title: "Task Overdue",
-          message: `${task.title} is overdue`
-        }
-      ]);
-
-      // ✅ Mark email sent
-      await supabase
-        .from("tasks")
-        .update({ overdue_email_sent: true })
-        .eq("id", task.id);
+    if (!tasks || tasks.length === 0) {
+      console.log("No overdue tasks");
+      return res.status(200).json({ message: "No overdue tasks" });
     }
-  }
 
-  res.status(200).json({ message: "Emails & notifications sent" });
+    console.log(`Processing ${tasks.length} overdue tasks`);
+
+    // ✅ PROBLEM 9 FIX — PARALLEL PROCESSING
+    await Promise.all(
+      tasks.map(async (task) => {
+        try {
+          const email = task.profiles?.email;
+
+          // ✅ Skip if no email
+          if (!email) {
+            console.warn(`No email for user ${task.user_id}`);
+            return;
+          }
+
+          // ✅ Send email
+          const emailRes = await resend.emails.send({
+            from: "Task Manager <onboarding@resend.dev>",
+            to: email,
+            subject: "Overdue Task Reminder",
+            html: `<p>Your task <b>${task.title}</b> is overdue.</p>`
+          });
+
+          // ❌ DO NOT PROCEED if email failed
+          if (!emailRes || !emailRes.id) {
+            console.error(`Email failed for task ${task.id}`);
+            return;
+          }
+
+          // ✅ Insert notification
+          const { error: notifError } = await supabase
+            .from("notifications")
+            .insert([
+              {
+                user_id: task.user_id,
+                title: "Task Overdue",
+                message: `${task.title} is overdue`,
+                read: false
+              }
+            ]);
+
+          if (notifError) {
+            console.error(
+              `Notification failed for task ${task.id}`,
+              notifError.message
+            );
+          }
+
+          // ✅ Mark as sent ONLY AFTER SUCCESS
+          const { error: updateError } = await supabase
+            .from("tasks")
+            .update({ overdue_email_sent: true })
+            .eq("id", task.id);
+
+          if (updateError) {
+            console.error("Update error:", updateError);
+          }
+
+          console.log(`Processed task ${task.id}`);
+        } catch (err) {
+          console.error(`Error processing task ${task.id}`, err);
+        }
+      })
+    );
+
+    res.status(200).json({ message: "Emails & notifications sent" });
+  } catch (err) {
+    console.error("Global error:", err);
+    res.status(500).json({ error: err.message });
+  }
 }

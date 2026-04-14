@@ -46,6 +46,7 @@ function Navbar() {
   Documents
 </button>
 
+-
       <button onClick={() => navigate("/profile")}>
         Profile
       </button>
