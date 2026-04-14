@@ -5,6 +5,7 @@ import TaskForm from "../components/TaskForm";
 import KanbanBoard from "../components/KanbanBoard";
 import AiAssistant from "../components/AiAssistant";
 import Layout from "../components/Layout";
+import { motion } from "framer-motion"; // ✅ NEW
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -40,7 +41,6 @@ function Dashboard() {
     checkUser();
   }, [navigate]);
 
-  // ✅ UPDATED FETCH (STEP 9)
   const fetchTasks = async () => {
     if (!user) return;
 
@@ -85,7 +85,6 @@ function Dashboard() {
     fetchTasks();
   };
 
-  // ✅ SHARE FUNCTION (STEP 9)
   const shareTask = async (taskId, email) => {
     const { data: userData } = await supabase
       .from("profiles")
@@ -164,8 +163,18 @@ function Dashboard() {
       {/* TASKS */}
       <div style={{ marginTop: "20px" }}>
         {filteredTasks.map((task) => (
-          <div key={task.id} style={{ padding: "15px", background: "#020617", marginBottom: "10px" }}>
-            
+          <motion.div
+            key={task.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.3 }}
+            style={{
+              padding: "15px",
+              background: "#020617",
+              marginBottom: "10px"
+            }}
+          >
             <h3>{task.title}</h3>
             <p>{task.description}</p>
 
@@ -174,37 +183,60 @@ function Dashboard() {
             </div>
 
             <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
-              <button onClick={() => toggleComplete(task.id)}>Toggle</button>
-              <button onClick={() => deleteTask(task.id)}>Delete</button>
+              
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => toggleComplete(task.id)}
+              >
+                Toggle
+              </motion.button>
 
-              {/* ✅ SHARE BUTTON */}
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => deleteTask(task.id)}
+              >
+                Delete
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => {
                   const email = prompt("Enter user email:");
                   if (email) shareTask(task.id, email);
                 }}
               >
                 Share
-              </button>
+              </motion.button>
 
               {task.file_url && (
-                <button onClick={() => setSelectedFile(task.file_url)}>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setSelectedFile(task.file_url)}
+                >
                   View File
-                </button>
+                </motion.button>
               )}
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 
       {/* FILE VIEWER */}
       {selectedFile && (
-        <div style={modalStyle}>
+        <motion.div
+          style={modalStyle}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
           <div style={modalBox}>
             <button onClick={() => setSelectedFile(null)}>X</button>
             <iframe src={selectedFile} style={{ width: "100%", height: "100%" }} />
           </div>
-        </div>
+        </motion.div>
       )}
 
       <KanbanBoard tasks={tasks} setTasks={setTasks} />
@@ -216,14 +248,18 @@ function Dashboard() {
 
       {/* AI PANEL */}
       {showAI && (
-        <div style={aiPanel}>
+        <motion.div
+          style={aiPanel}
+          initial={{ x: 100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+        >
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <span>AI Assistant</span>
             <button onClick={() => setShowAI(false)}>X</button>
           </div>
 
           <AiAssistant />
-        </div>
+        </motion.div>
       )}
     </Layout>
   );
