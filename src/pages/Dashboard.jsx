@@ -17,10 +17,7 @@ function Dashboard() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
 
-  // ✅ STEP 6
   const [selectedFile, setSelectedFile] = useState(null);
-
-  // ✅ STEP 7 (AI PANEL)
   const [showAI, setShowAI] = useState(false);
 
   useEffect(() => {
@@ -28,7 +25,6 @@ function Dashboard() {
       const { data, error } = await supabase.auth.getSession();
 
       if (error) {
-        console.error("Auth error:", error.message);
         navigate("/");
         return;
       }
@@ -44,13 +40,17 @@ function Dashboard() {
     checkUser();
   }, [navigate]);
 
+  // ✅ UPDATED FETCH (STEP 9)
   const fetchTasks = async () => {
     if (!user) return;
 
     const { data, error } = await supabase
       .from("tasks")
-      .select("*")
-      .eq("user_id", user.id)
+      .select(`
+        *,
+        task_members(user_id)
+      `)
+      .or(`user_id.eq.${user.id},task_members.user_id.eq.${user.id}`)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -85,6 +85,35 @@ function Dashboard() {
     fetchTasks();
   };
 
+  // ✅ SHARE FUNCTION (STEP 9)
+  const shareTask = async (taskId, email) => {
+    const { data: userData } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("email", email)
+      .single();
+
+    if (!userData) {
+      alert("User not found");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("task_members")
+      .insert([
+        {
+          task_id: taskId,
+          user_id: userData.id
+        }
+      ]);
+
+    if (error) {
+      alert("Share failed");
+    } else {
+      alert("Task shared successfully");
+    }
+  };
+
   const filteredTasks = tasks
     .filter((task) =>
       task.title?.toLowerCase().includes(search.toLowerCase())
@@ -102,32 +131,20 @@ function Dashboard() {
 
   return (
     <Layout>
-      <h1 style={{ fontSize: "26px", marginBottom: "10px" }}>
-        Dashboard
-      </h1>
+      <h1 style={{ fontSize: "26px" }}>Dashboard</h1>
 
       <p style={{ color: "#94a3b8" }}>
         Total Tasks: {tasks.length}
       </p>
 
-      <div style={{ marginTop: "20px" }}>
-        <TaskForm addTask={fetchTasks} />
-      </div>
+      <TaskForm addTask={fetchTasks} />
 
       {/* Filters */}
-      <div style={{ marginTop: "30px", display: "flex", gap: "10px" }}>
+      <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
         <input
-          type="text"
           placeholder="Search..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{
-            padding: "8px",
-            borderRadius: "6px",
-            background: "#020617",
-            color: "white",
-            border: "1px solid #1e293b"
-          }}
         />
 
         <select onChange={(e) => setStatusFilter(e.target.value)}>
@@ -144,54 +161,30 @@ function Dashboard() {
         </select>
       </div>
 
-      {/* TASK CARDS */}
+      {/* TASKS */}
       <div style={{ marginTop: "20px" }}>
         {filteredTasks.map((task) => (
-          <div
-            key={task.id}
-            style={{
-              padding: "18px",
-              borderRadius: "14px",
-              background: "#020617",
-              marginBottom: "12px",
-              border: "1px solid #1e293b"
-            }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <h3>{task.title}</h3>
+          <div key={task.id} style={{ padding: "15px", background: "#020617", marginBottom: "10px" }}>
+            
+            <h3>{task.title}</h3>
+            <p>{task.description}</p>
 
-              <span
-                style={{
-                  padding: "4px 10px",
-                  borderRadius: "999px",
-                  fontSize: "12px",
-                  background:
-                    task.priority === "High"
-                      ? "#dc2626"
-                      : task.priority === "Medium"
-                      ? "#f59e0b"
-                      : "#22c55e",
-                  color: "white"
-                }}
-              >
-                {task.priority}
-              </span>
-            </div>
-
-            <p style={{ color: "#94a3b8" }}>{task.description}</p>
-
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span>Due: {task.due_date}</span>
-              <span>{task.status}</span>
+            <div>
+              <span>Due: {task.due_date}</span> | <span>{task.status}</span>
             </div>
 
             <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
-              <button onClick={() => toggleComplete(task.id)}>
-                Toggle
-              </button>
+              <button onClick={() => toggleComplete(task.id)}>Toggle</button>
+              <button onClick={() => deleteTask(task.id)}>Delete</button>
 
-              <button onClick={() => deleteTask(task.id)}>
-                Delete
+              {/* ✅ SHARE BUTTON */}
+              <button
+                onClick={() => {
+                  const email = prompt("Enter user email:");
+                  if (email) shareTask(task.id, email);
+                }}
+              >
+                Share
               </button>
 
               {task.file_url && (
@@ -204,7 +197,7 @@ function Dashboard() {
         ))}
       </div>
 
-      {/* FILE MODAL */}
+      {/* FILE VIEWER */}
       {selectedFile && (
         <div style={modalStyle}>
           <div style={modalBox}>
@@ -216,46 +209,20 @@ function Dashboard() {
 
       <KanbanBoard tasks={tasks} setTasks={setTasks} />
 
-      {/* 🔥 AI FLOAT BUTTON */}
-      <div
-        onClick={() => setShowAI(true)}
-        style={{
-          position: "fixed",
-          bottom: "20px",
-          right: "20px",
-          background: "#3b82f6",
-          color: "white",
-          padding: "12px 16px",
-          borderRadius: "999px",
-          cursor: "pointer"
-        }}
-      >
+      {/* AI BUTTON */}
+      <div onClick={() => setShowAI(true)} style={aiBtn}>
         💬 AI
       </div>
 
-      {/* 🔥 AI PANEL */}
+      {/* AI PANEL */}
       {showAI && (
-        <div
-          style={{
-            position: "fixed",
-            bottom: "80px",
-            right: "20px",
-            width: "350px",
-            height: "500px",
-            background: "#020617",
-            borderRadius: "12px",
-            display: "flex",
-            flexDirection: "column"
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", padding: "10px" }}>
+        <div style={aiPanel}>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
             <span>AI Assistant</span>
             <button onClick={() => setShowAI(false)}>X</button>
           </div>
 
-          <div style={{ flex: 1, overflow: "auto" }}>
-            <AiAssistant />
-          </div>
+          <AiAssistant />
         </div>
       )}
     </Layout>
@@ -270,13 +237,33 @@ const modalStyle = {
   height: "100%",
   background: "rgba(0,0,0,0.8)",
   display: "flex",
-  alignItems: "center",
-  justifyContent: "center"
+  justifyContent: "center",
+  alignItems: "center"
 };
 
 const modalBox = {
   width: "80%",
   height: "80%",
+  background: "#020617"
+};
+
+const aiBtn = {
+  position: "fixed",
+  bottom: "20px",
+  right: "20px",
+  background: "#3b82f6",
+  color: "white",
+  padding: "10px",
+  borderRadius: "50%",
+  cursor: "pointer"
+};
+
+const aiPanel = {
+  position: "fixed",
+  bottom: "80px",
+  right: "20px",
+  width: "300px",
+  height: "400px",
   background: "#020617",
   padding: "10px"
 };
