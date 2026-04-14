@@ -44,12 +44,33 @@ function TaskForm({ addTask }) {
     setLoading(true);
 
     try {
+      // ✅ GET USER
       const {
         data: { user }
       } = await supabase.auth.getUser();
 
       if (!user) {
         alert("User not logged in");
+        setLoading(false);
+        return;
+      }
+
+      // 🔥 STEP 10 — CHECK USER PLAN
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("plan")
+        .eq("id", user.id)
+        .single();
+
+      // 🔥 COUNT USER TASKS
+      const { count } = await supabase
+        .from("tasks")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id);
+
+      // 🚫 LIMIT FREE USERS
+      if (profile?.plan === "free" && count >= 5) {
+        alert("Free plan limit reached (5 tasks). Upgrade to Pro.");
         setLoading(false);
         return;
       }
@@ -64,6 +85,7 @@ function TaskForm({ addTask }) {
         }
       }
 
+      // ✅ INSERT TASK
       const { error } = await supabase.from("tasks").insert([
         {
           title: cleanTitle,
@@ -93,6 +115,7 @@ function TaskForm({ addTask }) {
 
       alert("Task added successfully");
     } catch (err) {
+      console.error(err);
       alert("Something went wrong");
     }
 
@@ -111,8 +134,10 @@ function TaskForm({ addTask }) {
     >
       <h3 style={{ marginBottom: "15px" }}>Add New Task</h3>
 
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-        
+      <form
+        onSubmit={handleSubmit}
+        style={{ display: "flex", flexDirection: "column", gap: "12px" }}
+      >
         <input
           type="text"
           placeholder="Task title"
