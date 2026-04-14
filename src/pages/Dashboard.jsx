@@ -4,7 +4,7 @@ import { supabase } from "../lib/supabaseClient";
 import TaskForm from "../components/TaskForm";
 import KanbanBoard from "../components/KanbanBoard";
 import AiAssistant from "../components/AiAssistant";
-import Navbar from "../components/Navbar";
+import Layout from "../components/Layout";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -17,7 +17,6 @@ function Dashboard() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
 
-  // ✅ Check logged-in user (FIXED ERROR HANDLING)
   useEffect(() => {
     const checkUser = async () => {
       const { data, error } = await supabase.auth.getSession();
@@ -39,7 +38,6 @@ function Dashboard() {
     checkUser();
   }, [navigate]);
 
-  // ✅ Fetch tasks from DB (FIXED ERROR HANDLING)
   const fetchTasks = async () => {
     if (!user) return;
 
@@ -58,30 +56,21 @@ function Dashboard() {
     setTasks(data);
   };
 
-  // ✅ Load tasks when user is available
   useEffect(() => {
-    if (user) {
-      fetchTasks();
-    }
+    if (user) fetchTasks();
   }, [user]);
 
-  // ✅ Delete task (FIXED ERROR HANDLING)
   const deleteTask = async (id) => {
-    const { error } = await supabase
-      .from("tasks")
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from("tasks").delete().eq("id", id);
 
     if (error) {
-      console.error("Delete error:", error.message);
-      alert("Failed to delete task");
+      alert("Delete failed");
       return;
     }
 
     fetchTasks();
   };
 
-  // ✅ Toggle task status (FIXED ERROR HANDLING)
   const toggleComplete = async (id) => {
     const task = tasks.find((t) => t.id === id);
     if (!task) return;
@@ -89,21 +78,14 @@ function Dashboard() {
     const newStatus =
       task.status === "Pending" ? "Completed" : "Pending";
 
-    const { error } = await supabase
+    await supabase
       .from("tasks")
       .update({ status: newStatus })
       .eq("id", id);
 
-    if (error) {
-      console.error("Update error:", error.message);
-      alert("Failed to update task");
-      return;
-    }
-
     fetchTasks();
   };
 
-  // ✅ Filtering logic
   const filteredTasks = tasks
     .filter((task) =>
       task.title?.toLowerCase().includes(search.toLowerCase())
@@ -120,67 +102,152 @@ function Dashboard() {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <>
-      <Navbar />
+    <Layout>
+      <h1 style={{ fontSize: "26px", marginBottom: "10px" }}>
+        Dashboard
+      </h1>
 
-      <div style={{ color: "white", padding: "30px" }}>
-        <h1>Dashboard</h1>
-        <p>Total Tasks: {tasks.length}</p>
+      <p style={{ color: "#94a3b8" }}>
+        Total Tasks: {tasks.length}
+      </p>
 
-        {/* ✅ Pass fetchTasks */}
+      <div style={{ marginTop: "20px" }}>
         <TaskForm addTask={fetchTasks} />
+      </div>
 
-        <div style={{ marginTop: "20px" }}>
-          <input
-            type="text"
-            placeholder="Search task..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+      {/* Filters */}
+      <div style={{ marginTop: "30px", display: "flex", gap: "10px" }}>
+        <input
+          type="text"
+          placeholder="Search..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{
+            padding: "8px",
+            borderRadius: "6px",
+            background: "#020617",
+            color: "white",
+            border: "1px solid #1e293b"
+          }}
+        />
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+        <select onChange={(e) => setStatusFilter(e.target.value)}>
+          <option>All</option>
+          <option>Pending</option>
+          <option>Completed</option>
+        </select>
+
+        <select onChange={(e) => setPriorityFilter(e.target.value)}>
+          <option>All</option>
+          <option>Low</option>
+          <option>Medium</option>
+          <option>High</option>
+        </select>
+      </div>
+
+      {/* 🔥 MODERN TASK CARDS (STEP 3) */}
+      <div style={{ marginTop: "20px" }}>
+        {filteredTasks.map((task) => (
+          <div
+            key={task.id}
+            style={{
+              padding: "18px",
+              borderRadius: "14px",
+              background: "#020617",
+              marginBottom: "12px",
+              border: "1px solid #1e293b",
+              transition: "0.2s"
+            }}
           >
-            <option value="All">All Status</option>
-            <option value="Pending">Pending</option>
-            <option value="Completed">Completed</option>
-          </select>
+            {/* Top Row */}
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <h3 style={{ fontSize: "16px" }}>{task.title}</h3>
 
-          <select
-            value={priorityFilter}
-            onChange={(e) => setPriorityFilter(e.target.value)}
-          >
-            <option value="All">All Priority</option>
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-          </select>
-        </div>
+              {/* Priority Badge */}
+              <span
+                style={{
+                  padding: "4px 10px",
+                  borderRadius: "999px",
+                  fontSize: "12px",
+                  background:
+                    task.priority === "High"
+                      ? "#dc2626"
+                      : task.priority === "Medium"
+                      ? "#f59e0b"
+                      : "#22c55e",
+                  color: "white"
+                }}
+              >
+                {task.priority}
+              </span>
+            </div>
 
-        <div style={{ marginTop: "20px" }}>
-          {filteredTasks.map((task) => (
-            <div key={task.id}>
-              <h3>{task.title}</h3>
-              <p>{task.description}</p>
-              <p>Status: {task.status}</p>
-              <p>Priority: {task.priority}</p>
-              <p>Due Date: {task.due_date}</p>
+            {/* Description */}
+            <p style={{ color: "#94a3b8", marginTop: "6px" }}>
+              {task.description}
+            </p>
 
-              <button onClick={() => toggleComplete(task.id)}>
+            {/* Bottom Row */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginTop: "12px",
+                alignItems: "center"
+              }}
+            >
+              <span style={{ fontSize: "12px", color: "#64748b" }}>
+                Due: {task.due_date}
+              </span>
+
+              <span
+                style={{
+                  fontSize: "12px",
+                  color:
+                    task.status === "Completed"
+                      ? "#22c55e"
+                      : "#f59e0b"
+                }}
+              >
+                ● {task.status}
+              </span>
+            </div>
+
+            {/* Actions */}
+            <div style={{ marginTop: "12px", display: "flex", gap: "10px" }}>
+              <button
+                onClick={() => toggleComplete(task.id)}
+                style={{
+                  padding: "6px 10px",
+                  borderRadius: "6px",
+                  background: "#1e293b",
+                  color: "white",
+                  border: "none"
+                }}
+              >
                 Toggle
               </button>
-              <button onClick={() => deleteTask(task.id)}>
+
+              <button
+                onClick={() => deleteTask(task.id)}
+                style={{
+                  padding: "6px 10px",
+                  borderRadius: "6px",
+                  background: "#7f1d1d",
+                  color: "white",
+                  border: "none"
+                }}
+              >
                 Delete
               </button>
             </div>
-          ))}
-        </div>
-
-        <KanbanBoard tasks={tasks} setTasks={setTasks} />
-        <AiAssistant />
+          </div>
+        ))}
       </div>
-    </>
+
+      <KanbanBoard tasks={tasks} setTasks={setTasks} />
+      <AiAssistant />
+    </Layout>
   );
 }
 
