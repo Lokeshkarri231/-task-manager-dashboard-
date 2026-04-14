@@ -9,7 +9,6 @@ function TaskForm({ addTask }) {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // 🔹 Upload file to Supabase Storage
   async function uploadFile(file) {
     if (!file) return null;
 
@@ -20,7 +19,6 @@ function TaskForm({ addTask }) {
       .upload(fileName, file);
 
     if (error) {
-      console.error("Upload error:", error);
       alert("File upload failed");
       return null;
     }
@@ -32,11 +30,9 @@ function TaskForm({ addTask }) {
     return data.publicUrl;
   }
 
-  // 🔹 Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ✅ PROBLEM 5 FIX — IMPROVED VALIDATION
     const cleanTitle = title.trim();
     const cleanDescription = description.trim();
 
@@ -45,31 +41,14 @@ function TaskForm({ addTask }) {
       return;
     }
 
-    if (cleanTitle.length > 100) {
-      alert("Title too long (max 100 characters)");
-      return;
-    }
-
-    if (cleanDescription.length > 500) {
-      alert("Description too long (max 500 characters)");
-      return;
-    }
-
-    if (file && file.size > 2 * 1024 * 1024) {
-      alert("File too large (max 2MB)");
-      return;
-    }
-
     setLoading(true);
 
     try {
-      // ✅ Get logged-in user
       const {
-        data: { user },
-        error: userError
+        data: { user }
       } = await supabase.auth.getUser();
 
-      if (userError || !user) {
+      if (!user) {
         alert("User not logged in");
         setLoading(false);
         return;
@@ -77,49 +56,35 @@ function TaskForm({ addTask }) {
 
       let fileUrl = null;
 
-      // ✅ Upload file safely
       if (file) {
         fileUrl = await uploadFile(file);
-
         if (!fileUrl) {
-          console.warn("File upload failed — stopping task creation");
           setLoading(false);
           return;
         }
       }
 
-      // ✅ Insert into database (USE CLEAN VALUES)
-      const { data, error } = await supabase
-        .from("tasks")
-        .insert([
-          {
-            title: cleanTitle,
-            description: cleanDescription,
-            due_date: dueDate,
-            priority,
-            status: "Pending",
-            file_url: fileUrl,
-            user_id: user.id,
-            overdue_email_sent: false
-          }
-        ])
-        .select();
+      const { error } = await supabase.from("tasks").insert([
+        {
+          title: cleanTitle,
+          description: cleanDescription,
+          due_date: dueDate,
+          priority,
+          status: "Pending",
+          file_url: fileUrl,
+          user_id: user.id,
+          overdue_email_sent: false
+        }
+      ]);
 
       if (error) {
-        console.error("Insert error:", error);
         alert(error.message);
         setLoading(false);
         return;
       }
 
-      console.log("Task added:", data);
+      if (addTask) addTask();
 
-      // ✅ Refresh tasks
-      if (addTask && data && data.length > 0) {
-        addTask();
-      }
-
-      // ✅ Reset form
       setTitle("");
       setDescription("");
       setDueDate("");
@@ -128,7 +93,6 @@ function TaskForm({ addTask }) {
 
       alert("Task added successfully");
     } catch (err) {
-      console.error("Unexpected error:", err);
       alert("Something went wrong");
     }
 
@@ -136,62 +100,82 @@ function TaskForm({ addTask }) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h3>Add Task</h3>
+    <div
+      style={{
+        background: "#020617",
+        padding: "20px",
+        borderRadius: "14px",
+        border: "1px solid #1e293b",
+        maxWidth: "500px"
+      }}
+    >
+      <h3 style={{ marginBottom: "15px" }}>Add New Task</h3>
 
-      <input
-        className="form-input"
-        type="text"
-        placeholder="Task title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        required
-      />
-      <br /><br />
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        
+        <input
+          type="text"
+          placeholder="Task title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          style={inputStyle}
+        />
 
-      <input
-        className="form-input"
-        type="text"
-        placeholder="Task description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
-      <br /><br />
+        <textarea
+          placeholder="Task description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          style={{ ...inputStyle, height: "80px" }}
+        />
 
-      <input
-        className="form-input"
-        type="date"
-        value={dueDate}
-        onChange={(e) => setDueDate(e.target.value)}
-        required
-      />
-      <br /><br />
+        <input
+          type="date"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+          style={inputStyle}
+        />
 
-      <select
-        className="form-input"
-        value={priority}
-        onChange={(e) => setPriority(e.target.value)}
-      >
-        <option value="Low">Low</option>
-        <option value="Medium">Medium</option>
-        <option value="High">High</option>
-      </select>
+        <select
+          value={priority}
+          onChange={(e) => setPriority(e.target.value)}
+          style={inputStyle}
+        >
+          <option>Low</option>
+          <option>Medium</option>
+          <option>High</option>
+        </select>
 
-      <br /><br />
+        <input
+          type="file"
+          onChange={(e) => setFile(e.target.files[0])}
+          style={{ color: "#94a3b8" }}
+        />
 
-      {/* File Upload */}
-      <input
-        type="file"
-        onChange={(e) => setFile(e.target.files[0])}
-      />
-
-      <br /><br />
-
-      <button className="add-task-btn" disabled={loading}>
-        {loading ? "Adding..." : "Add Task"}
-      </button>
-    </form>
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            padding: "10px",
+            borderRadius: "8px",
+            background: "#3b82f6",
+            color: "white",
+            border: "none",
+            cursor: "pointer"
+          }}
+        >
+          {loading ? "Adding..." : "Add Task"}
+        </button>
+      </form>
+    </div>
   );
 }
+
+const inputStyle = {
+  padding: "10px",
+  borderRadius: "8px",
+  border: "1px solid #1e293b",
+  background: "#0f172a",
+  color: "white"
+};
 
 export default TaskForm;
